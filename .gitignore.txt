@@ -1,0 +1,60 @@
+# Build results
+bin/
+obj/
+[Bb]uild/
+[Ll]og/
+*.log
+
+# User-specific files
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Visual Studio cache and indexing
+.vs/
+*.vsidx
+
+# NuGet packages
+*.nupkg
+*.snupkg
+packages/
+*.nuspec
+
+# Backup & temporary files
+*.bak
+*.tmp
+*.temp
+*.~*
+
+# Debug and release folders
+Debug/
+Release/
+
+# Publish folder
+publish/
+
+# Resharper and Rider
+*.DotSettings.user
+.idea/
+
+# Windows image cache
+Thumbs.db
+ehthumbs.db
+
+# Others
+*.dbmdl
+*.pidb
+*.svclog
+*.pdb
+*.cache
+*.config
+
+# Auto-generated files
+Generated_Code/
+
+# Optional: ignore test results
+TestResults/
+*.trx
+*.coverage
+*.coveragexml
