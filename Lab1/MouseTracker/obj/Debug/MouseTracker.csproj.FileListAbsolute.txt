@@ -1,0 +1,11 @@
+C:\Users\kylea\Repos\MECH_421_Labs\Lab1\MouseTracker\bin\Debug\MouseTracker.exe.config
+C:\Users\kylea\Repos\MECH_421_Labs\Lab1\MouseTracker\bin\Debug\MouseTracker.exe
+C:\Users\kylea\Repos\MECH_421_Labs\Lab1\MouseTracker\bin\Debug\MouseTracker.pdb
+C:\Users\kylea\Repos\MECH_421_Labs\Lab1\MouseTracker\obj\Debug\MouseTracker.csproj.AssemblyReference.cache
+C:\Users\kylea\Repos\MECH_421_Labs\Lab1\MouseTracker\obj\Debug\MouseTracker.Form1.resources
+C:\Users\kylea\Repos\MECH_421_Labs\Lab1\MouseTracker\obj\Debug\MouseTracker.Properties.Resources.resources
+C:\Users\kylea\Repos\MECH_421_Labs\Lab1\MouseTracker\obj\Debug\MouseTracker.csproj.GenerateResource.cache
+C:\Users\kylea\Repos\MECH_421_Labs\Lab1\MouseTracker\obj\Debug\MouseTracker.csproj.CoreCompileInputs.cache
+C:\Users\kylea\Repos\MECH_421_Labs\Lab1\MouseTracker\obj\Debug\MouseTracker.exe
+C:\Users\kylea\Repos\MECH_421_Labs\Lab1\MouseTracker\obj\Debug\MouseTracker.pdb
+C:\Users\kylea\Repos\MECH_421_Labs\Lab1\MouseTracker\obj\Debug\MouseTracker.exe.config
