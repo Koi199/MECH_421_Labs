@@ -1,0 +1,22 @@
+C:\Users\kylea\Repos\MECH_421_Labs\Lab1\Queues\bin\Debug\Queues.exe.config
+C:\Users\kylea\Repos\MECH_421_Labs\Lab1\Queues\bin\Debug\Queues.exe
+C:\Users\kylea\Repos\MECH_421_Labs\Lab1\Queues\bin\Debug\Queues.pdb
+C:\Users\kylea\Repos\MECH_421_Labs\Lab1\Queues\obj\Debug\Queues.csproj.AssemblyReference.cache
+C:\Users\kylea\Repos\MECH_421_Labs\Lab1\Queues\obj\Debug\Queues.Form1.resources
+C:\Users\kylea\Repos\MECH_421_Labs\Lab1\Queues\obj\Debug\Queues.Properties.Resources.resources
+C:\Users\kylea\Repos\MECH_421_Labs\Lab1\Queues\obj\Debug\Queues.csproj.GenerateResource.cache
+C:\Users\kylea\Repos\MECH_421_Labs\Lab1\Queues\obj\Debug\Queues.csproj.CoreCompileInputs.cache
+C:\Users\kylea\Repos\MECH_421_Labs\Lab1\Queues\obj\Debug\Queues.exe
+C:\Users\kylea\Repos\MECH_421_Labs\Lab1\Queues\obj\Debug\Queues.pdb
+C:\Users\kylea\Repos\MECH_421_Labs\Lab1\Queues\obj\Debug\Queues.exe.config
+C:\Users\kylea\Repos\MECH_421_Labs\Lab1\Concurrent Queues\bin\Debug\Queues.exe.config
+C:\Users\kylea\Repos\MECH_421_Labs\Lab1\Concurrent Queues\bin\Debug\Queues.exe
+C:\Users\kylea\Repos\MECH_421_Labs\Lab1\Concurrent Queues\bin\Debug\Queues.pdb
+C:\Users\kylea\Repos\MECH_421_Labs\Lab1\Concurrent Queues\obj\Debug\Queues.csproj.AssemblyReference.cache
+C:\Users\kylea\Repos\MECH_421_Labs\Lab1\Concurrent Queues\obj\Debug\Queues.exe.config
+C:\Users\kylea\Repos\MECH_421_Labs\Lab1\Concurrent Queues\obj\Debug\Queues.Form1.resources
+C:\Users\kylea\Repos\MECH_421_Labs\Lab1\Concurrent Queues\obj\Debug\Queues.Properties.Resources.resources
+C:\Users\kylea\Repos\MECH_421_Labs\Lab1\Concurrent Queues\obj\Debug\Queues.csproj.GenerateResource.cache
+C:\Users\kylea\Repos\MECH_421_Labs\Lab1\Concurrent Queues\obj\Debug\Queues.csproj.CoreCompileInputs.cache
+C:\Users\kylea\Repos\MECH_421_Labs\Lab1\Concurrent Queues\obj\Debug\Queues.exe
+C:\Users\kylea\Repos\MECH_421_Labs\Lab1\Concurrent Queues\obj\Debug\Queues.pdb
