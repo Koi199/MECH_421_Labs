@@ -77,39 +77,61 @@ namespace Queues
                 }
 
             }
+            else {
+                MessageBox.Show("Dequeuing Failed; Not enough items in the queue.");
+            }
+                
         }
 
         private void button_Dequeue_And_Average_Click(object sender, EventArgs e)
         {
-            int N = Convert.ToInt32(textBox_N.Text);
+            int N;
+
+            if (int.TryParse(textBox_N.Text, out int value))
+            {
+                N = value;
+            }
+            else
+            {
+                MessageBox.Show("Please enter a valid integer for N.");
+                return;
+            }
 
             // Safety check: do we have enough items?
-            if (dataQueue.Count >= N && N > 0)
+            if (dataQueue.Count > 0)
             {
-                List<int> temp = new List<int>();
-
-                for (int i = 0; i < N; i++)
+                if (dataQueue.Count >= N)
                 {
-                    if (dataQueue.TryDequeue(out int Value))
+                    List<int> temp = new List<int>();
+
+                    for (int i = 0; i < N; i++)
                     {
-                        temp.Add(Value);
-                    }
-                    else
-                    {
-                        MessageBox.Show("Dequeuing Failed.");
-                        break;
+                        if (dataQueue.TryDequeue(out int Value))
+                        {
+                            temp.Add(Value);
+                        }
+                        else
+                        {
+                            MessageBox.Show("Dequeuing Failed.");
+                            break;
+                        }
+
                     }
 
+                    double average = temp.Average();
+
+                    textBox_Average.Text = average.ToString();
                 }
-
-                double average = temp.Average();
-
-                textBox_Average.Text = average.ToString();
+                else
+                {
+                    MessageBox.Show("Not enough items in the queue.");
+                }
             }
             else
             {
                 MessageBox.Show("Not enough items in the queue.");
             }
+            
         }
     }
 }

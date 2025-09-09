@@ -52,7 +52,7 @@
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 23.17881F));
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 76.82119F));
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 103F));
-            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 140F));
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 141F));
             this.tableLayoutPanel1.Controls.Add(this.textBox_QueueContent, 0, 6);
             this.tableLayoutPanel1.Controls.Add(this.label_QueueContent, 0, 5);
             this.tableLayoutPanel1.Controls.Add(this.textBox_NumberOfItems, 2, 2);
@@ -98,7 +98,7 @@
             this.label_QueueContent.Dock = System.Windows.Forms.DockStyle.Fill;
             this.label_QueueContent.Location = new System.Drawing.Point(3, 166);
             this.label_QueueContent.Name = "label_QueueContent";
-            this.label_QueueContent.Size = new System.Drawing.Size(134, 31);
+            this.label_QueueContent.Size = new System.Drawing.Size(133, 31);
             this.label_QueueContent.TabIndex = 19;
             this.label_QueueContent.Text = "Queue Contents: ";
             this.label_QueueContent.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -108,10 +108,10 @@
             this.tableLayoutPanel1.SetColumnSpan(this.textBox_NumberOfItems, 2);
             this.textBox_NumberOfItems.Dock = System.Windows.Forms.DockStyle.Fill;
             this.textBox_NumberOfItems.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.textBox_NumberOfItems.Location = new System.Drawing.Point(143, 73);
+            this.textBox_NumberOfItems.Location = new System.Drawing.Point(142, 73);
             this.textBox_NumberOfItems.Multiline = true;
             this.textBox_NumberOfItems.Name = "textBox_NumberOfItems";
-            this.textBox_NumberOfItems.Size = new System.Drawing.Size(238, 29);
+            this.textBox_NumberOfItems.Size = new System.Drawing.Size(239, 29);
             this.textBox_NumberOfItems.TabIndex = 14;
             // 
             // textBox_Dequeue
@@ -119,10 +119,10 @@
             this.tableLayoutPanel1.SetColumnSpan(this.textBox_Dequeue, 2);
             this.textBox_Dequeue.Dock = System.Windows.Forms.DockStyle.Fill;
             this.textBox_Dequeue.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.textBox_Dequeue.Location = new System.Drawing.Point(143, 38);
+            this.textBox_Dequeue.Location = new System.Drawing.Point(142, 38);
             this.textBox_Dequeue.Multiline = true;
             this.textBox_Dequeue.Name = "textBox_Dequeue";
-            this.textBox_Dequeue.Size = new System.Drawing.Size(238, 29);
+            this.textBox_Dequeue.Size = new System.Drawing.Size(239, 29);
             this.textBox_Dequeue.TabIndex = 13;
             // 
             // textBox_Enqueue
@@ -130,10 +130,10 @@
             this.tableLayoutPanel1.SetColumnSpan(this.textBox_Enqueue, 2);
             this.textBox_Enqueue.Dock = System.Windows.Forms.DockStyle.Fill;
             this.textBox_Enqueue.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.textBox_Enqueue.Location = new System.Drawing.Point(143, 3);
+            this.textBox_Enqueue.Location = new System.Drawing.Point(142, 3);
             this.textBox_Enqueue.Multiline = true;
             this.textBox_Enqueue.Name = "textBox_Enqueue";
-            this.textBox_Enqueue.Size = new System.Drawing.Size(238, 29);
+            this.textBox_Enqueue.Size = new System.Drawing.Size(239, 29);
             this.textBox_Enqueue.TabIndex = 11;
             // 
             // button_Enqueue
@@ -143,7 +143,7 @@
             this.button_Enqueue.Dock = System.Windows.Forms.DockStyle.Fill;
             this.button_Enqueue.Location = new System.Drawing.Point(3, 3);
             this.button_Enqueue.Name = "button_Enqueue";
-            this.button_Enqueue.Size = new System.Drawing.Size(134, 29);
+            this.button_Enqueue.Size = new System.Drawing.Size(133, 29);
             this.button_Enqueue.TabIndex = 1;
             this.button_Enqueue.Text = "Enqueue";
             this.button_Enqueue.UseVisualStyleBackColor = false;
@@ -156,7 +156,7 @@
             this.button_Dequeue.Dock = System.Windows.Forms.DockStyle.Fill;
             this.button_Dequeue.Location = new System.Drawing.Point(3, 38);
             this.button_Dequeue.Name = "button_Dequeue";
-            this.button_Dequeue.Size = new System.Drawing.Size(134, 29);
+            this.button_Dequeue.Size = new System.Drawing.Size(133, 29);
             this.button_Dequeue.TabIndex = 2;
             this.button_Dequeue.Text = "Dequeue";
             this.button_Dequeue.UseVisualStyleBackColor = false;
@@ -170,7 +170,7 @@
             this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label1.Location = new System.Drawing.Point(3, 70);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(134, 35);
+            this.label1.Size = new System.Drawing.Size(133, 35);
             this.label1.TabIndex = 5;
             this.label1.Text = "Items in Queue";
             this.label1.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -205,14 +205,14 @@
             this.textBox_N.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.textBox_N.Location = new System.Drawing.Point(35, 143);
             this.textBox_N.Name = "textBox_N";
-            this.textBox_N.Size = new System.Drawing.Size(102, 21);
+            this.textBox_N.Size = new System.Drawing.Size(101, 24);
             this.textBox_N.TabIndex = 16;
             // 
             // label_Average
             // 
             this.label_Average.AutoSize = true;
             this.label_Average.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.label_Average.Location = new System.Drawing.Point(143, 140);
+            this.label_Average.Location = new System.Drawing.Point(142, 140);
             this.label_Average.Name = "label_Average";
             this.label_Average.Size = new System.Drawing.Size(97, 26);
             this.label_Average.TabIndex = 17;
@@ -222,9 +222,9 @@
             // textBox_Average
             // 
             this.textBox_Average.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.textBox_Average.Location = new System.Drawing.Point(246, 143);
+            this.textBox_Average.Location = new System.Drawing.Point(245, 143);
             this.textBox_Average.Name = "textBox_Average";
-            this.textBox_Average.Size = new System.Drawing.Size(135, 20);
+            this.textBox_Average.Size = new System.Drawing.Size(136, 20);
             this.textBox_Average.TabIndex = 18;
             // 
             // Form1
