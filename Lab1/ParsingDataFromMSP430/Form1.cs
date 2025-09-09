@@ -10,13 +10,20 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace Receiving_DataFromMSP430
+namespace ParsingDataFromMSP430
 {
     public partial class Form1 : Form
     {
         private string serialDataString = "";
         private Timer myTimer = new Timer();
+        private enum DataStream { LEAD, Ax, Ay, Az };
+        private DataStream currentDataStream;
+        private DataStream nextDataStream;
+
         private ConcurrentQueue<Int32> dataQueue = new ConcurrentQueue<Int32>();
+        private ConcurrentQueue<Int32> dataQueue_Ax = new ConcurrentQueue<Int32>();
+        private ConcurrentQueue<Int32> dataQueue_Ay = new ConcurrentQueue<Int32>();
+        private ConcurrentQueue<Int32> dataQueue_Az = new ConcurrentQueue<Int32>();
 
         public Form1()
         {
@@ -42,11 +49,11 @@ namespace Receiving_DataFromMSP430
 
             // Setting up a timer
             myTimer.Interval = 100; // Fires every 100ms
-            myTimer.Tick += UpdateQueue; // Hook up the event
+            myTimer.Tick += UpdateQueues; // Hook up the event
             myTimer.Start(); // Start the timer
         }
 
-        private void UpdateQueue(object sender, EventArgs e)
+        private void UpdateQueues(object sender, EventArgs e)
         {
             if (serialPort_MSP430.IsOpen)
                 textBox_SerialBytestoRead.Text = serialPort_MSP430.BytesToRead.ToString();
@@ -58,6 +65,33 @@ namespace Receiving_DataFromMSP430
             while (dataQueue.TryDequeue(out int value))
             {
                 textBox_Data.AppendText(value.ToString() + ", ");
+                
+                // Check for LEAD byte
+                if (value == 255)
+                {
+                    nextDataStream = DataStream.Ax; // Expect Ax next
+                }
+                else
+                {   
+                    switch (nextDataStream)
+                    {
+                        case DataStream.Ax:
+                            dataQueue_Ax.Enqueue(value);
+                            textBox_Ax.Text = value.ToString();
+                            nextDataStream = DataStream.Ay; // Expect Ay next
+                            break;
+                        case DataStream.Ay:
+                            dataQueue_Ay.Enqueue(value);
+                            textBox_Ay.Text = value.ToString();
+                            nextDataStream = DataStream.Az; // Expect Az next
+                            break;
+                        case DataStream.Az:
+                            dataQueue_Az.Enqueue(value);
+                            textBox_Az.Text = value.ToString();
+                            nextDataStream = DataStream.Ax; // Expect Ax next
+                            break;
+                    }
+                }
             }
         }
 
@@ -151,5 +185,6 @@ namespace Receiving_DataFromMSP430
 
             }
         }
+
     }
 }
