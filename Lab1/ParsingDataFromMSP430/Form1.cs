@@ -17,8 +17,11 @@ namespace ParsingDataFromMSP430
         private string serialDataString = "";
         private Timer myTimer = new Timer();
         private enum DataStream { LEAD, Ax, Ay, Az };
-        private DataStream currentDataStream;
         private DataStream nextDataStream;
+        private int scaledAx, scaledAy, scaledAz;
+        private const int offsetAx = 126; // Adjust based on calibration
+        private const int offsetAy = 127; // Adjust based on calibration
+        private const int offsetAz = 127; // Adjust based on calibration
 
         private ConcurrentQueue<Int32> dataQueue = new ConcurrentQueue<Int32>();
         private ConcurrentQueue<Int32> dataQueue_Ax = new ConcurrentQueue<Int32>();
@@ -65,33 +68,74 @@ namespace ParsingDataFromMSP430
             while (dataQueue.TryDequeue(out int value))
             {
                 textBox_Data.AppendText(value.ToString() + ", ");
-                
+
                 // Check for LEAD byte
                 if (value == 255)
                 {
                     nextDataStream = DataStream.Ax; // Expect Ax next
                 }
                 else
-                {   
+                {
                     switch (nextDataStream)
                     {
                         case DataStream.Ax:
                             dataQueue_Ax.Enqueue(value);
-                            textBox_Ax.Text = value.ToString();
+                            scaledAx = (value - offsetAx);
+                            textBox_Ax.Text = scaledAx.ToString();
+
                             nextDataStream = DataStream.Ay; // Expect Ay next
                             break;
                         case DataStream.Ay:
                             dataQueue_Ay.Enqueue(value);
-                            textBox_Ay.Text = value.ToString();
+                            scaledAy = (value - offsetAy);
+                            textBox_Ay.Text = scaledAy.ToString();
+
                             nextDataStream = DataStream.Az; // Expect Az next
                             break;
                         case DataStream.Az:
                             dataQueue_Az.Enqueue(value);
-                            textBox_Az.Text = value.ToString();
+                            scaledAz = (value - offsetAz);
+                            textBox_Az.Text = scaledAz.ToString();
+
                             nextDataStream = DataStream.Ax; // Expect Ax next
                             break;
                     }
                 }
+
+                //if (textBox_Data.TextLength > 2000)
+                //{
+                //    textBox_Data.Clear();
+                //}
+
+                if ((scaledAx >= -2) && (scaledAx <= 2) && (scaledAy >= -2) && (scaledAy <= 2) && (scaledAz >= 20))
+                {
+                    textBox_Orientation.Text = "Device is flat; upside up";
+                }
+                else if ((scaledAx >= 20) && (scaledAy >= -2) && (scaledAy <= 2) && (scaledAz >= -2) && (scaledAz <= 2))
+                {
+                    textBox_Orientation.Text = "Device is on its side; pointing right";
+                }
+                else if ((scaledAx <= -20) && (scaledAy >= -2) && (scaledAy <= 2) && (scaledAz >= -2) && (scaledAz <= 2))
+                {
+                    textBox_Orientation.Text = "Device is on its other side; pointing left";
+                }
+                else if ((scaledAx >= -2) && (scaledAx <= 2) && (scaledAy >= 20) && (scaledAz >= -2) && (scaledAz <= 2))
+                {
+                    textBox_Orientation.Text = "Device is pointing down";
+                }
+                else if ((scaledAx >= -2) && (scaledAx <= 2) && (scaledAy <= -20) && (scaledAz >= -2) && (scaledAz <= 2))
+                {
+                    textBox_Orientation.Text = "Device is pointing up";
+                }
+                else if ((scaledAx >= -2) && (scaledAx <= 2) && (scaledAy >= -2) && (scaledAy <= 2) && (scaledAz <= -20))
+                {
+                    textBox_Orientation.Text = "Device is flat; upside down";
+                }
+                else
+                {
+                    textBox_Orientation.Text = "Cannot compute Orientation";
+                }
+
             }
         }
 
