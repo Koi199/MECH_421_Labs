@@ -181,7 +181,7 @@
             this.comboBoxCOMPorts.FormattingEnabled = true;
             this.comboBoxCOMPorts.Location = new System.Drawing.Point(3, 3);
             this.comboBoxCOMPorts.Name = "comboBoxCOMPorts";
-            this.comboBoxCOMPorts.Size = new System.Drawing.Size(175, 24);
+            this.comboBoxCOMPorts.Size = new System.Drawing.Size(175, 28);
             this.comboBoxCOMPorts.TabIndex = 0;
             this.comboBoxCOMPorts.SelectedIndexChanged += new System.EventHandler(this.comboBoxCOMPorts_SelectedIndexChanged);
             // 

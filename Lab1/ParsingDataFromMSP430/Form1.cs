@@ -97,7 +97,7 @@ namespace ParsingDataFromMSP430
                             scaledAz = (value - offsetAz);
                             textBox_Az.Text = scaledAz.ToString();
 
-                            nextDataStream = DataStream.Ax; // Expect Ax next
+                            nextDataStream = DataStream.LEAD; // Expect LEAD
                             break;
                     }
                 }
@@ -109,27 +109,27 @@ namespace ParsingDataFromMSP430
 
                 if ((scaledAx >= -2) && (scaledAx <= 2) && (scaledAy >= -2) && (scaledAy <= 2) && (scaledAz >= 20))
                 {
-                    textBox_Orientation.Text = "Device is flat; upside up";
+                    textBox_Orientation.Text = "Device is flat; + z";
                 }
                 else if ((scaledAx >= 20) && (scaledAy >= -2) && (scaledAy <= 2) && (scaledAz >= -2) && (scaledAz <= 2))
                 {
-                    textBox_Orientation.Text = "Device is on its side; pointing right";
+                    textBox_Orientation.Text = "Device is on its side; + x";
                 }
                 else if ((scaledAx <= -20) && (scaledAy >= -2) && (scaledAy <= 2) && (scaledAz >= -2) && (scaledAz <= 2))
                 {
-                    textBox_Orientation.Text = "Device is on its other side; pointing left";
+                    textBox_Orientation.Text = "Device is on its other side; - x";
                 }
                 else if ((scaledAx >= -2) && (scaledAx <= 2) && (scaledAy >= 20) && (scaledAz >= -2) && (scaledAz <= 2))
                 {
-                    textBox_Orientation.Text = "Device is pointing down";
+                    textBox_Orientation.Text = "Device is pointing down; + y";
                 }
                 else if ((scaledAx >= -2) && (scaledAx <= 2) && (scaledAy <= -20) && (scaledAz >= -2) && (scaledAz <= 2))
                 {
-                    textBox_Orientation.Text = "Device is pointing up";
+                    textBox_Orientation.Text = "Device is pointing up; - y";
                 }
                 else if ((scaledAx >= -2) && (scaledAx <= 2) && (scaledAy >= -2) && (scaledAy <= 2) && (scaledAz <= -20))
                 {
-                    textBox_Orientation.Text = "Device is flat; upside down";
+                    textBox_Orientation.Text = "Device is flat; - z";
                 }
                 else
                 {
@@ -200,12 +200,11 @@ namespace ParsingDataFromMSP430
             int newByte = 0;
             int bytesToRead;
             bytesToRead = serialPort_MSP430.BytesToRead;
-            while (bytesToRead != 0)
-            {
+            while (serialPort_MSP430.BytesToRead > 0) { 
                 newByte = serialPort_MSP430.ReadByte();
                 dataQueue.Enqueue(newByte);
                 serialDataString = serialDataString + newByte.ToString() + ", ";
-                bytesToRead = serialPort_MSP430.BytesToRead;
+                //bytesToRead = serialPort_MSP430.BytesToRead;
             }
         }
 

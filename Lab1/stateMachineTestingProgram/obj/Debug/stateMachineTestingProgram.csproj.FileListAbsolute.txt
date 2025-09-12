@@ -1,0 +1,11 @@
+C:\Users\kylea\Repos\MECH_421_Labs\Lab1\stateMachineTestingProgram\bin\Debug\stateMachineTestingProgram.exe.config
+C:\Users\kylea\Repos\MECH_421_Labs\Lab1\stateMachineTestingProgram\bin\Debug\stateMachineTestingProgram.exe
+C:\Users\kylea\Repos\MECH_421_Labs\Lab1\stateMachineTestingProgram\bin\Debug\stateMachineTestingProgram.pdb
+C:\Users\kylea\Repos\MECH_421_Labs\Lab1\stateMachineTestingProgram\obj\Debug\stateMachineTestingProgram.csproj.AssemblyReference.cache
+C:\Users\kylea\Repos\MECH_421_Labs\Lab1\stateMachineTestingProgram\obj\Debug\stateMachineTestingProgram.Form1.resources
+C:\Users\kylea\Repos\MECH_421_Labs\Lab1\stateMachineTestingProgram\obj\Debug\stateMachineTestingProgram.Properties.Resources.resources
+C:\Users\kylea\Repos\MECH_421_Labs\Lab1\stateMachineTestingProgram\obj\Debug\stateMachineTestingProgram.csproj.GenerateResource.cache
+C:\Users\kylea\Repos\MECH_421_Labs\Lab1\stateMachineTestingProgram\obj\Debug\stateMachineTestingProgram.csproj.CoreCompileInputs.cache
+C:\Users\kylea\Repos\MECH_421_Labs\Lab1\stateMachineTestingProgram\obj\Debug\stateMachineTestingProgram.exe
+C:\Users\kylea\Repos\MECH_421_Labs\Lab1\stateMachineTestingProgram\obj\Debug\stateMachineTestingProgram.pdb
+C:\Users\kylea\Repos\MECH_421_Labs\Lab1\stateMachineTestingProgram\obj\Debug\stateMachineTestingProgram.exe.config
