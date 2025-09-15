@@ -211,7 +211,7 @@ namespace SavingAccDataCSV
         private void serialPort_MSP430_DataReceived(object sender, SerialDataReceivedEventArgs e)
         {
             int newByte = 0;
-            while (serialPort_MSP430.BytesToRead > 0)
+            while (serialPort_MSP430.BytesToRead > 0 && serialPort_MSP430.IsOpen)
             {
                 newByte = serialPort_MSP430.ReadByte();
                 dataQueue.Enqueue(newByte);
