@@ -8,23 +8,190 @@ using System.IO;
 using System.IO.Ports;
 using System.Linq;
 using System.Text;
-
 using System.Windows.Forms;
 
 namespace LiveGestureRecognition
 {
+    // Enhanced accelerometer data structure
+    public class AccelerometerReading
+    {
+        public float X { get; set; }
+        public float Y { get; set; }
+        public float Z { get; set; }
+        public DateTime Timestamp { get; set; }
+
+        public AccelerometerReading(float x, float y, float z)
+        {
+            X = x;
+            Y = y;
+            Z = z;
+            Timestamp = DateTime.Now;
+        }
+    }
+
+    // Smoothing and filtering processor
+    public class AccelerometerProcessor
+    {
+        private readonly Queue<AccelerometerReading> _dataHistory;
+        private readonly int _smoothingWindowSize;
+        private AccelerometerReading _baselineCalibration;
+
+        public float DeadZone { get; set; } = 5.0f;  // Adjusted for your 0-255 range
+        public float SmoothingAlpha { get; set; } = 0.3f;
+        public int MovingAverageWindow { get; set; } = 5;
+        public bool UseMovingAverage { get; set; } = true;
+        public bool UseLowPassFilter { get; set; } = true;
+        public bool UseDeadZone { get; set; } = true;
+
+        public AccelerometerReading RawData { get; private set; }
+        public AccelerometerReading SmoothedData { get; private set; }
+        public AccelerometerReading FinalData { get; private set; }
+
+        private AccelerometerReading _previousSmoothed;
+        private AccelerometerReading _previousFinal;
+
+        public AccelerometerProcessor(int smoothingWindowSize = 5)
+        {
+            _smoothingWindowSize = Math.Max(1, smoothingWindowSize);
+            _dataHistory = new Queue<AccelerometerReading>(_smoothingWindowSize);
+            _baselineCalibration = new AccelerometerReading(127.5f, 127.5f, 127.5f); // Middle of 0-255 range
+
+            RawData = new AccelerometerReading(127.5f, 127.5f, 127.5f);
+            SmoothedData = new AccelerometerReading(127.5f, 127.5f, 127.5f);
+            FinalData = new AccelerometerReading(127.5f, 127.5f, 127.5f);
+            _previousSmoothed = new AccelerometerReading(127.5f, 127.5f, 127.5f);
+            _previousFinal = new AccelerometerReading(127.5f, 127.5f, 127.5f);
+        }
+
+        public AccelerometerReading ProcessData(int x, int y, int z)
+        {
+            // Convert to float and store raw data
+            RawData = new AccelerometerReading(x, y, z);
+
+            // Add to history
+            _dataHistory.Enqueue(new AccelerometerReading(x, y, z));
+            if (_dataHistory.Count > _smoothingWindowSize)
+            {
+                _dataHistory.Dequeue();
+            }
+
+            // Apply smoothing
+            SmoothedData = ApplySmoothing(RawData);
+
+            // Apply calibration
+            var calibrated = ApplyCalibration(SmoothedData);
+
+            // Apply dead zone
+            FinalData = ApplyDeadZone(calibrated);
+
+            // Update previous values
+            _previousSmoothed = new AccelerometerReading(SmoothedData.X, SmoothedData.Y, SmoothedData.Z);
+            _previousFinal = new AccelerometerReading(FinalData.X, FinalData.Y, FinalData.Z);
+
+            return FinalData;
+        }
+
+        private AccelerometerReading ApplyLowPassFilter(AccelerometerReading current)
+        {
+            float smoothedX = SmoothingAlpha * current.X + (1 - SmoothingAlpha) * _previousSmoothed.X;
+            float smoothedY = SmoothingAlpha * current.Y + (1 - SmoothingAlpha) * _previousSmoothed.Y;
+            float smoothedZ = SmoothingAlpha * current.Z + (1 - SmoothingAlpha) * _previousSmoothed.Z;
+
+            return new AccelerometerReading(smoothedX, smoothedY, smoothedZ);
+        }
+
+        private AccelerometerReading ApplyMovingAverage()
+        {
+            if (_dataHistory.Count == 0)
+                return new AccelerometerReading(127.5f, 127.5f, 127.5f);
+
+            float avgX = _dataHistory.Average(d => d.X);
+            float avgY = _dataHistory.Average(d => d.Y);
+            float avgZ = _dataHistory.Average(d => d.Z);
+
+            return new AccelerometerReading(avgX, avgY, avgZ);
+        }
+
+        private AccelerometerReading ApplySmoothing(AccelerometerReading rawData)
+        {
+            AccelerometerReading result = rawData;
+
+            if (UseMovingAverage && _dataHistory.Count > 1)
+            {
+                result = ApplyMovingAverage();
+            }
+
+            if (UseLowPassFilter)
+            {
+                result = ApplyLowPassFilter(result);
+            }
+
+            return result;
+        }
+
+        private AccelerometerReading ApplyCalibration(AccelerometerReading data)
+        {
+            return new AccelerometerReading(
+                data.X - _baselineCalibration.X,
+                data.Y - _baselineCalibration.Y,
+                data.Z - _baselineCalibration.Z
+            );
+        }
+
+        private AccelerometerReading ApplyDeadZone(AccelerometerReading current)
+        {
+            if (!UseDeadZone)
+                return current;
+
+            float deltaX = Math.Abs(current.X - _previousFinal.X);
+            float deltaY = Math.Abs(current.Y - _previousFinal.Y);
+            float deltaZ = Math.Abs(current.Z - _previousFinal.Z);
+
+            float newX = deltaX > DeadZone ? current.X : _previousFinal.X;
+            float newY = deltaY > DeadZone ? current.Y : _previousFinal.Y;
+            float newZ = deltaZ > DeadZone ? current.Z : _previousFinal.Z;
+
+            return new AccelerometerReading(newX, newY, newZ);
+        }
+
+        public void Calibrate()
+        {
+            if (_dataHistory.Count > 0)
+            {
+                _baselineCalibration = ApplyMovingAverage();
+            }
+            else
+            {
+                _baselineCalibration = new AccelerometerReading(RawData.X, RawData.Y, RawData.Z);
+            }
+        }
+
+        public float GetAccelerationMagnitude()
+        {
+            return (float)Math.Sqrt(FinalData.X * FinalData.X + FinalData.Y * FinalData.Y + FinalData.Z * FinalData.Z);
+        }
+
+        public bool DetectThrow(float threshold = 50.0f)
+        {
+            return GetAccelerationMagnitude() > threshold;
+        }
+    }
+
     public partial class Form1 : Form
     {
         private string serialDataString = "";
         private Timer myTimer = new Timer();
         private Timer GestureTimeout = new Timer();
+        private Timer ThrowCooldown = new Timer();
         private enum DataStream { LEAD, Ax, Ay, Az };
         private DataStream nextDataStream;
-        private int scaledAx, scaledAy, scaledAz;
         private int rawAx = 0, rawAy = 0, rawAz = 0;
-        private const int offsetAx = 126; // Adjust based on calibration
-        private const int offsetAy = 127; // Adjust based on calibration
-        private const int offsetAz = 127; // Adjust based on calibration
+
+        // Enhanced with accelerometer processor
+        private AccelerometerProcessor accelerometerProcessor;
+        private bool throwDetected = false;
+        private int throwCount = 0;
+        private int pokemonCaught = 0;
 
         private ConcurrentQueue<Int32> dataQueue = new ConcurrentQueue<Int32>();
         private ConcurrentQueue<Int32> dataQueue_Ax = new ConcurrentQueue<Int32>();
@@ -35,20 +202,21 @@ namespace LiveGestureRecognition
         private Queue<String> detectedGestures = new Queue<String>();
         private Queue<String> finalizedGestures = new Queue<String>();
 
-        private const int GESTURE_TIMEOUT_MS = 5000; // 2 seconds
+        private const int GESTURE_TIMEOUT_MS = 5000;
+        private const int THROW_COOLDOWN_MS = 1000; // Prevent multiple throws
         private State CurrentState = 0;
         private bool stateProcessed = false;
 
-        // Define states and gestures
+
         enum State
         {
             IDLE = 0,
             START,
             GESTUREDETECTED,
             WAITFORMOREGESTURES,
-            GESTURECOMPLETED, 
-            TESTING
+            GESTURECOMPLETED
         }
+
         enum Gesture
         {
             NONE = 0,
@@ -58,6 +226,16 @@ namespace LiveGestureRecognition
         public Form1()
         {
             InitializeComponent();
+
+            // Initialize accelerometer processor
+            accelerometerProcessor = new AccelerometerProcessor(smoothingWindowSize: 5);
+
+            // Configure for Pokemon throwing (responsive but not too sensitive)
+            accelerometerProcessor.SmoothingAlpha = 0.6f;
+            accelerometerProcessor.DeadZone = 3.0f;
+            accelerometerProcessor.UseMovingAverage = true;
+            accelerometerProcessor.UseLowPassFilter = true;
+            accelerometerProcessor.UseDeadZone = true;
 
         }
 
@@ -73,37 +251,29 @@ namespace LiveGestureRecognition
             {
                 comboBoxCOMPorts.SelectedIndex = 0;
             }
-                
-            // Initialize button text
+
             buttonConnectSerial.Text = "Connect Serial";
 
-            // Setting up timeout timer
-            GestureTimeout.Interval = GESTURE_TIMEOUT_MS; // 5 seconds timeout
+            GestureTimeout.Interval = GESTURE_TIMEOUT_MS;
             GestureTimeout.Tick += (s, args) =>
             {
-                // Handle timeout event
-                // For example, reset state or notify user
-                GestureTimeout.Stop(); // Stop the timer after timeout
+                GestureTimeout.Stop();
             };
 
-            // Setting up a timer
-            myTimer.Interval = 100;// Fires every 100ms
-            myTimer.Tick += UpdateDataStream; // Hook up the event
-            myTimer.Start(); // Start the timer
+            myTimer.Interval = 50; // Increased frequency for smoother game response
+            myTimer.Tick += UpdateDataStream;
+            myTimer.Start();
         }
 
-        // Timer Tick Event Handler
         private void UpdateDataStream(object sender, EventArgs e)
         {
-            textBox_CurrentState.Text = CurrentState.ToString();
+            textBox_CurrentState.Text = $"{CurrentState}";
             textBox_gesturebuffercount.Text = string.Join(", ", finalizedGestures.ToList());
 
-            // Display contents of queue container
             while (dataQueue.TryDequeue(out int value))
             {
                 textBox_Data.AppendText(value.ToString() + ", ");
                 processDataQueue(value);
-
             }
         }
 
@@ -121,37 +291,35 @@ namespace LiveGestureRecognition
             {
                 if (!serialPort_MSP430.IsOpen)
                 {
-                    // Connect to serial port
-                    string transmit = "a"; // or "A", both will work 
+                    string transmit = "a";
                     byte[] TxByte = Encoding.Unicode.GetBytes(transmit);
 
                     serialPort_MSP430.Open();
                     serialPort_MSP430.Write(TxByte, 0, 1);
 
                     buttonConnectSerial.Text = "Disconnect Serial";
-                    comboBoxCOMPorts.Enabled = false; // Disable port selection while connected
-                    CurrentState = State.START; // Move to START state
-                    //MessageBox.Show("Successfully Connected.");
+                    comboBoxCOMPorts.Enabled = false;
+                    CurrentState = State.START;
+
+                    // Calibrate the accelerometer on connection
+                    accelerometerProcessor.Calibrate();
                 }
                 else
                 {
-                    // Disconnect from serial port
                     string transmit = "z";
                     byte[] TxByte = Encoding.Unicode.GetBytes(transmit);
                     serialPort_MSP430.Write(TxByte, 0, 1);
                     serialPort_MSP430.Close();
-                    
+
                     buttonConnectSerial.Text = "Connect Serial";
-                    comboBoxCOMPorts.Enabled = true; // Re-enable port selection
-                    CurrentState = State.IDLE; // Move to IDLE state
-                    //MessageBox.Show("Successfully Disconnected.");
+                    comboBoxCOMPorts.Enabled = true;
+                    CurrentState = State.IDLE;
                 }
             }
             catch (Exception ex)
             {
                 MessageBox.Show("Error: " + ex.Message);
 
-                // Ensure UI state is consistent even if an error occurs
                 if (serialPort_MSP430.IsOpen)
                 {
                     buttonConnectSerial.Text = "Disconnect Serial";
@@ -165,7 +333,6 @@ namespace LiveGestureRecognition
             }
         }
 
-
         private void serialPort_MSP430_DataReceived(object sender, SerialDataReceivedEventArgs e)
         {
             int newByte = 0;
@@ -177,45 +344,11 @@ namespace LiveGestureRecognition
             }
         }
 
-        private void Form1_FormClosing(object sender, FormClosingEventArgs e)
-        {
-            try
-            {
-
-                if (serialPort_MSP430.IsOpen)
-                {
-                    // Cancel the close temporarily to do async cleanup
-                    e.Cancel = true;
-
-                    // Disable the form to prevent user interaction
-                    this.Enabled = false;
-
-                    // Re-enable form and close
-                    this.Enabled = true;
-                    e.Cancel = false;
-
-                    // Close the form properly
-                    this.Close();
-                }
-                else
-                {
-                    // Placeholder
-                }
-            }
-            catch (Exception ex)
-            {
-                // Log error but allow form to close
-                System.Diagnostics.Debug.WriteLine("Error closing form: " + ex.Message);
-            }
-        }
-
-        // Process incoming data stream and display instantaneous values
         private void processDataQueue(int value)
         {
-            // Check for LEAD byte
             if (value == 255)
             {
-                nextDataStream = DataStream.Ax; // Expect Ax next
+                nextDataStream = DataStream.Ax;
             }
             else
             {
@@ -224,39 +357,47 @@ namespace LiveGestureRecognition
                     case DataStream.Ax:
                         dataQueue_Ax.Enqueue(value);
                         rawAx = value;
-                        textBox_Ax.Text = rawAx.ToString();
-                        nextDataStream = DataStream.Ay; // Expect Ay next
+                        nextDataStream = DataStream.Ay;
                         break;
                     case DataStream.Ay:
                         dataQueue_Ay.Enqueue(value);
                         rawAy = value;
-                        textBox_Ay.Text = rawAy.ToString();
-                        nextDataStream = DataStream.Az; // Expect Az next
+                        nextDataStream = DataStream.Az;
                         break;
                     case DataStream.Az:
                         dataQueue_Az.Enqueue(value);
                         rawAz = value;
-                        textBox_Az.Text = rawAz.ToString();
 
-                        if (dataQueue_Ax.TryDequeue(out int ax))
+                        if (dataQueue_Ax.TryDequeue(out int ax) &&
+                            dataQueue_Ay.TryDequeue(out int ay) &&
+                            dataQueue_Az.TryDequeue(out int az))
+                        {
+                            // Process through accelerometer processor for smoothing
+                            var processedData = accelerometerProcessor.ProcessData(ax, ay, az);
+
+                            // Update display with both raw and processed data
+                            textBox_Ax.Text = $"Raw: {ax} | Smooth: {processedData.X:F1}";
+                            textBox_Ay.Text = $"Raw: {ay} | Smooth: {processedData.Y:F1}";
+                            textBox_Az.Text = $"Raw: {az} | Smooth: {processedData.Z:F1}";
+
+                            // Use original gesture recognition with raw values
                             gestureBuffer.Add(ax);
-
-                        if (dataQueue_Ay.TryDequeue(out int ay))
                             gestureBuffer.Add(ay);
-
-                        if (dataQueue_Az.TryDequeue(out int az))
                             gestureBuffer.Add(az);
                             stateMachine();
 
-                        nextDataStream = DataStream.LEAD; // Expect LEAD
+                        }
+
+                        nextDataStream = DataStream.LEAD;
                         break;
                 }
             }
         }
 
+
+        // Rest of your original methods remain the same...
         private void stateMachine()
         {
-            // State machine
             switch (CurrentState)
             {
                 case State.IDLE:
@@ -270,13 +411,12 @@ namespace LiveGestureRecognition
                         stateProcessed = true;
                     }
 
-                    // waiting for gesture
                     for (int i = 0; i < gestureBuffer.Count; i++)
                     {
                         if ((gestureBuffer[i] > 200) || (gestureBuffer[i] < 45))
                         {
                             CurrentState = State.GESTUREDETECTED;
-                            stateProcessed = false; // Reset for next state
+                            stateProcessed = false;
                             break;
                         }
                     }
@@ -286,19 +426,16 @@ namespace LiveGestureRecognition
                 case State.GESTUREDETECTED:
                     if (!stateProcessed)
                     {
-                        // process gesture
                         MapGesture(gestureBuffer);
                         gestureBuffer.Clear();
-                        // wait for more gestures or timeout
                         GestureTimeout.Start();
                         stateProcessed = true;
                     }
                     CurrentState = State.WAITFORMOREGESTURES;
-                    stateProcessed = false; // Reset for next state
+                    stateProcessed = false;
                     break;
 
                 case State.WAITFORMOREGESTURES:
-                    // if new gesture detected, process it
                     for (int i = 0; i < gestureBuffer.Count; i++)
                     {
                         if ((gestureBuffer[i] > 200) || (gestureBuffer[i] < 45))
@@ -306,30 +443,28 @@ namespace LiveGestureRecognition
                             GestureTimeout.Stop();
                             GestureTimeout.Start();
                             CurrentState = State.GESTUREDETECTED;
-                            stateProcessed = false; // Reset for next state
+                            stateProcessed = false;
                             break;
                         }
                     }
                     gestureBuffer.Clear();
 
-                    // if timeout occurs, move to gesture completed state
                     if (!GestureTimeout.Enabled)
                     {
                         CurrentState = State.GESTURECOMPLETED;
-                        stateProcessed = false; // Reset for next state
+                        stateProcessed = false;
                     }
                     break;
 
                 case State.GESTURECOMPLETED:
                     if (!stateProcessed)
                     {
-                        // finalize gesture sequence
                         GestureTimeout.Stop();
-                        identifyGesture(); // Clears the detectedGestures
+                        identifyGesture();
                         stateProcessed = true;
                     }
                     CurrentState = State.START;
-                    stateProcessed = false; // Reset for next state
+                    stateProcessed = false;
                     break;
             }
         }
@@ -340,47 +475,54 @@ namespace LiveGestureRecognition
             {
                 MessageBox.Show("Not enough data to map gesture.");
                 CurrentState = State.START;
+                return;
             }
 
-            if (list[0] > 200 && list[1] < 180 && list[2] < 180)
+            if (list[0] > 230 && list[1] < 180 && list[2] < 180)
             {
                 detectedGestures.Enqueue(Gesture.POS_X.ToString());
             }
-            else if (list[0] < 180 && list[1] > 200 && list[2] < 180)
+            else if (list[0] < 180 && list[1] > 230 && list[2] < 180)
             {
                 detectedGestures.Enqueue(Gesture.POS_Y.ToString());
             }
-            else if (list[0] < 180 && list[1] < 180 && list[2] > 200)
+            else if (list[0] < 180 && list[1] < 180 && list[2] > 230)
             {
                 detectedGestures.Enqueue(Gesture.POS_Z.ToString());
             }
-            else if (list[0] < 45 && list[1] > 100 && list[2] > 100)
+            else if (list[0] < 20 && list[1] > 120 && list[2] > 120)
             {
                 detectedGestures.Enqueue(Gesture.NEG_X.ToString());
             }
-            else if (list[0] > 100 && list[1] < 45 && list[2] > 100)
+            else if (list[0] > 120 && list[1] < 20 && list[2] > 120)
             {
                 detectedGestures.Enqueue(Gesture.NEG_Y.ToString());
             }
-            else if (list[0] > 100 && list[1] > 100 && list[2] < 45)
+            else if (list[0] > 120 && list[1] > 120 && list[2] < 20)
             {
                 detectedGestures.Enqueue(Gesture.NEG_Z.ToString());
             }
-            //else
-            //{
-            //    detectedGestures.Enqueue(Gesture.NONE.ToString());
-            //}
-            
-            textBox_LatestGesture.Text = detectedGestures.Last();
-            if (detectedGestures.Last() != finalizedGestures.LastOrDefault())
-                finalizedGestures.Enqueue(detectedGestures.Last());
-            return;
+
+            if (detectedGestures.Count > 0)
+            {
+                textBox_LatestGesture.Text = detectedGestures.Last();
+
+                var latestDetected = detectedGestures.Last();
+                var lastFinalized = finalizedGestures.LastOrDefault();
+
+                if (latestDetected != lastFinalized)
+                    finalizedGestures.Enqueue(latestDetected);
+            }
+            else
+            {
+                textBox_LatestGesture.Text = string.Empty;
+            }
         }
 
         private void identifyGesture()
         {
             var gestures = finalizedGestures.ToList();
-            
+
             if (gestures.SequenceEqual(new[] { "POS_X", "POS_Y" }))
                 textBox_AssessedGesture.Text = "right hook";
             else if (gestures.SequenceEqual(new[] { "POS_X" }))
@@ -394,5 +536,23 @@ namespace LiveGestureRecognition
             finalizedGestures.Clear();
         }
 
+        private void Form1_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            try
+            {
+                if (serialPort_MSP430.IsOpen)
+                {
+                    e.Cancel = true;
+                    this.Enabled = false;
+                    this.Enabled = true;
+                    e.Cancel = false;
+                    this.Close();
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine("Error closing form: " + ex.Message);
+            }
+        }
     }
 }
