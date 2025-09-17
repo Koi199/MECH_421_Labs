@@ -2,7 +2,7 @@ C:\Users\kylea\Repos\MECH_421_Labs\Lab1\LiveGestureRecognition\bin\Debug\Parsing
 C:\Users\kylea\Repos\MECH_421_Labs\Lab1\LiveGestureRecognition\bin\Debug\ParsingDataFromMSP430.exe
 C:\Users\kylea\Repos\MECH_421_Labs\Lab1\LiveGestureRecognition\bin\Debug\ParsingDataFromMSP430.pdb
 C:\Users\kylea\Repos\MECH_421_Labs\Lab1\LiveGestureRecognition\obj\Debug\LiveGestureRecognition.csproj.AssemblyReference.cache
-C:\Users\kylea\Repos\MECH_421_Labs\Lab1\LiveGestureRecognition\obj\Debug\LiveGestureRecognition.AccelerometerReading.resources
+C:\Users\kylea\Repos\MECH_421_Labs\Lab1\LiveGestureRecognition\obj\Debug\LiveGestureRecognition.Form1.resources
 C:\Users\kylea\Repos\MECH_421_Labs\Lab1\LiveGestureRecognition\obj\Debug\ParsingDataFromMSP430.Properties.Resources.resources
 C:\Users\kylea\Repos\MECH_421_Labs\Lab1\LiveGestureRecognition\obj\Debug\LiveGestureRecognition.csproj.GenerateResource.cache
 C:\Users\kylea\Repos\MECH_421_Labs\Lab1\LiveGestureRecognition\obj\Debug\LiveGestureRecognition.csproj.CoreCompileInputs.cache

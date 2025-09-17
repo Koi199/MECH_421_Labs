@@ -12,186 +12,183 @@ using System.Windows.Forms;
 
 namespace LiveGestureRecognition
 {
-    // Enhanced accelerometer data structure
-    public class AccelerometerReading
-    {
-        public float X { get; set; }
-        public float Y { get; set; }
-        public float Z { get; set; }
-        public DateTime Timestamp { get; set; }
-
-        public AccelerometerReading(float x, float y, float z)
-        {
-            X = x;
-            Y = y;
-            Z = z;
-            Timestamp = DateTime.Now;
-        }
-    }
-
-    // Smoothing and filtering processor
-    public class AccelerometerProcessor
-    {
-        private readonly Queue<AccelerometerReading> _dataHistory;
-        private readonly int _smoothingWindowSize;
-        private AccelerometerReading _baselineCalibration;
-
-        public float DeadZone { get; set; } = 5.0f;  // Adjusted for your 0-255 range
-        public float SmoothingAlpha { get; set; } = 0.3f;
-        public int MovingAverageWindow { get; set; } = 5;
-        public bool UseMovingAverage { get; set; } = true;
-        public bool UseLowPassFilter { get; set; } = true;
-        public bool UseDeadZone { get; set; } = true;
-
-        public AccelerometerReading RawData { get; private set; }
-        public AccelerometerReading SmoothedData { get; private set; }
-        public AccelerometerReading FinalData { get; private set; }
-
-        private AccelerometerReading _previousSmoothed;
-        private AccelerometerReading _previousFinal;
-
-        public AccelerometerProcessor(int smoothingWindowSize = 5)
-        {
-            _smoothingWindowSize = Math.Max(1, smoothingWindowSize);
-            _dataHistory = new Queue<AccelerometerReading>(_smoothingWindowSize);
-            _baselineCalibration = new AccelerometerReading(127.5f, 127.5f, 127.5f); // Middle of 0-255 range
-
-            RawData = new AccelerometerReading(127.5f, 127.5f, 127.5f);
-            SmoothedData = new AccelerometerReading(127.5f, 127.5f, 127.5f);
-            FinalData = new AccelerometerReading(127.5f, 127.5f, 127.5f);
-            _previousSmoothed = new AccelerometerReading(127.5f, 127.5f, 127.5f);
-            _previousFinal = new AccelerometerReading(127.5f, 127.5f, 127.5f);
-        }
-
-        public AccelerometerReading ProcessData(int x, int y, int z)
-        {
-            // Convert to float and store raw data
-            RawData = new AccelerometerReading(x, y, z);
-
-            // Add to history
-            _dataHistory.Enqueue(new AccelerometerReading(x, y, z));
-            if (_dataHistory.Count > _smoothingWindowSize)
-            {
-                _dataHistory.Dequeue();
-            }
-
-            // Apply smoothing
-            SmoothedData = ApplySmoothing(RawData);
-
-            // Apply calibration
-            var calibrated = ApplyCalibration(SmoothedData);
-
-            // Apply dead zone
-            FinalData = ApplyDeadZone(calibrated);
-
-            // Update previous values
-            _previousSmoothed = new AccelerometerReading(SmoothedData.X, SmoothedData.Y, SmoothedData.Z);
-            _previousFinal = new AccelerometerReading(FinalData.X, FinalData.Y, FinalData.Z);
-
-            return FinalData;
-        }
-
-        private AccelerometerReading ApplyLowPassFilter(AccelerometerReading current)
-        {
-            float smoothedX = SmoothingAlpha * current.X + (1 - SmoothingAlpha) * _previousSmoothed.X;
-            float smoothedY = SmoothingAlpha * current.Y + (1 - SmoothingAlpha) * _previousSmoothed.Y;
-            float smoothedZ = SmoothingAlpha * current.Z + (1 - SmoothingAlpha) * _previousSmoothed.Z;
-
-            return new AccelerometerReading(smoothedX, smoothedY, smoothedZ);
-        }
-
-        private AccelerometerReading ApplyMovingAverage()
-        {
-            if (_dataHistory.Count == 0)
-                return new AccelerometerReading(127.5f, 127.5f, 127.5f);
-
-            float avgX = _dataHistory.Average(d => d.X);
-            float avgY = _dataHistory.Average(d => d.Y);
-            float avgZ = _dataHistory.Average(d => d.Z);
-
-            return new AccelerometerReading(avgX, avgY, avgZ);
-        }
-
-        private AccelerometerReading ApplySmoothing(AccelerometerReading rawData)
-        {
-            AccelerometerReading result = rawData;
-
-            if (UseMovingAverage && _dataHistory.Count > 1)
-            {
-                result = ApplyMovingAverage();
-            }
-
-            if (UseLowPassFilter)
-            {
-                result = ApplyLowPassFilter(result);
-            }
-
-            return result;
-        }
-
-        private AccelerometerReading ApplyCalibration(AccelerometerReading data)
-        {
-            return new AccelerometerReading(
-                data.X - _baselineCalibration.X,
-                data.Y - _baselineCalibration.Y,
-                data.Z - _baselineCalibration.Z
-            );
-        }
-
-        private AccelerometerReading ApplyDeadZone(AccelerometerReading current)
-        {
-            if (!UseDeadZone)
-                return current;
-
-            float deltaX = Math.Abs(current.X - _previousFinal.X);
-            float deltaY = Math.Abs(current.Y - _previousFinal.Y);
-            float deltaZ = Math.Abs(current.Z - _previousFinal.Z);
-
-            float newX = deltaX > DeadZone ? current.X : _previousFinal.X;
-            float newY = deltaY > DeadZone ? current.Y : _previousFinal.Y;
-            float newZ = deltaZ > DeadZone ? current.Z : _previousFinal.Z;
-
-            return new AccelerometerReading(newX, newY, newZ);
-        }
-
-        public void Calibrate()
-        {
-            if (_dataHistory.Count > 0)
-            {
-                _baselineCalibration = ApplyMovingAverage();
-            }
-            else
-            {
-                _baselineCalibration = new AccelerometerReading(RawData.X, RawData.Y, RawData.Z);
-            }
-        }
-
-        public float GetAccelerationMagnitude()
-        {
-            return (float)Math.Sqrt(FinalData.X * FinalData.X + FinalData.Y * FinalData.Y + FinalData.Z * FinalData.Z);
-        }
-
-        public bool DetectThrow(float threshold = 50.0f)
-        {
-            return GetAccelerationMagnitude() > threshold;
-        }
-    }
-
     public partial class Form1 : Form
     {
+        // Enhanced accelerometer data structure
+        public class AccelerometerReading
+        {
+            public float X { get; set; }
+            public float Y { get; set; }
+            public float Z { get; set; }
+            public DateTime Timestamp { get; set; }
+
+            public AccelerometerReading(float x, float y, float z)
+            {
+                X = x;
+                Y = y;
+                Z = z;
+                Timestamp = DateTime.Now;
+            }
+        }
+
+        // Smoothing and filtering processor
+        public class AccelerometerProcessor
+        {
+            private readonly Queue<AccelerometerReading> _dataHistory;
+            private readonly int _smoothingWindowSize;
+            private AccelerometerReading _baselineCalibration;
+
+            public float DeadZone { get; set; } = 5.0f;  // Adjusted for your 0-255 range
+            public float SmoothingAlpha { get; set; } = 0.3f;
+            public int MovingAverageWindow { get; set; } = 5;
+            public bool UseMovingAverage { get; set; } = true;
+            public bool UseLowPassFilter { get; set; } = true;
+            public bool UseDeadZone { get; set; } = true;
+
+            public AccelerometerReading RawData { get; private set; }
+            public AccelerometerReading SmoothedData { get; private set; }
+            public AccelerometerReading FinalData { get; private set; }
+
+            private AccelerometerReading _previousSmoothed;
+            private AccelerometerReading _previousFinal;
+
+            public AccelerometerProcessor(int smoothingWindowSize = 5)
+            {
+                _smoothingWindowSize = Math.Max(1, smoothingWindowSize);
+                _dataHistory = new Queue<AccelerometerReading>(_smoothingWindowSize);
+                _baselineCalibration = new AccelerometerReading(127.5f, 127.5f, 127.5f); // Middle of 0-255 range
+
+                RawData = new AccelerometerReading(127.5f, 127.5f, 127.5f);
+                SmoothedData = new AccelerometerReading(127.5f, 127.5f, 127.5f);
+                FinalData = new AccelerometerReading(127.5f, 127.5f, 127.5f);
+                _previousSmoothed = new AccelerometerReading(127.5f, 127.5f, 127.5f);
+                _previousFinal = new AccelerometerReading(127.5f, 127.5f, 127.5f);
+            }
+
+            public AccelerometerReading ProcessData(int x, int y, int z)
+            {
+                // Convert to float and store raw data
+                RawData = new AccelerometerReading(x, y, z);
+
+                // Add to history
+                _dataHistory.Enqueue(new AccelerometerReading(x, y, z));
+                if (_dataHistory.Count > _smoothingWindowSize)
+                {
+                    _dataHistory.Dequeue();
+                }
+
+                // Apply smoothing
+                SmoothedData = ApplySmoothing(RawData);
+
+                // Apply calibration
+                var calibrated = ApplyCalibration(SmoothedData);
+
+                // Apply dead zone
+                FinalData = ApplyDeadZone(calibrated);
+
+                // Update previous values
+                _previousSmoothed = new AccelerometerReading(SmoothedData.X, SmoothedData.Y, SmoothedData.Z);
+                _previousFinal = new AccelerometerReading(FinalData.X, FinalData.Y, FinalData.Z);
+
+                return FinalData;
+            }
+
+            private AccelerometerReading ApplyLowPassFilter(AccelerometerReading current)
+            {
+                float smoothedX = SmoothingAlpha * current.X + (1 - SmoothingAlpha) * _previousSmoothed.X;
+                float smoothedY = SmoothingAlpha * current.Y + (1 - SmoothingAlpha) * _previousSmoothed.Y;
+                float smoothedZ = SmoothingAlpha * current.Z + (1 - SmoothingAlpha) * _previousSmoothed.Z;
+
+                return new AccelerometerReading(smoothedX, smoothedY, smoothedZ);
+            }
+
+            private AccelerometerReading ApplyMovingAverage()
+            {
+                if (_dataHistory.Count == 0)
+                    return new AccelerometerReading(127.5f, 127.5f, 127.5f);
+
+                float avgX = _dataHistory.Average(d => d.X);
+                float avgY = _dataHistory.Average(d => d.Y);
+                float avgZ = _dataHistory.Average(d => d.Z);
+
+                return new AccelerometerReading(avgX, avgY, avgZ);
+            }
+
+            private AccelerometerReading ApplySmoothing(AccelerometerReading rawData)
+            {
+                AccelerometerReading result = rawData;
+
+                if (UseMovingAverage && _dataHistory.Count > 1)
+                {
+                    result = ApplyMovingAverage();
+                }
+
+                if (UseLowPassFilter)
+                {
+                    result = ApplyLowPassFilter(result);
+                }
+
+                return result;
+            }
+
+            private AccelerometerReading ApplyCalibration(AccelerometerReading data)
+            {
+                return new AccelerometerReading(
+                    data.X - _baselineCalibration.X,
+                    data.Y - _baselineCalibration.Y,
+                    data.Z - _baselineCalibration.Z
+                );
+            }
+
+            private AccelerometerReading ApplyDeadZone(AccelerometerReading current)
+            {
+                if (!UseDeadZone)
+                    return current;
+
+                float deltaX = Math.Abs(current.X - _previousFinal.X);
+                float deltaY = Math.Abs(current.Y - _previousFinal.Y);
+                float deltaZ = Math.Abs(current.Z - _previousFinal.Z);
+
+                float newX = deltaX > DeadZone ? current.X : _previousFinal.X;
+                float newY = deltaY > DeadZone ? current.Y : _previousFinal.Y;
+                float newZ = deltaZ > DeadZone ? current.Z : _previousFinal.Z;
+
+                return new AccelerometerReading(newX, newY, newZ);
+            }
+
+            public void Calibrate()
+            {
+                if (_dataHistory.Count > 0)
+                {
+                    _baselineCalibration = ApplyMovingAverage();
+                }
+                else
+                {
+                    _baselineCalibration = new AccelerometerReading(RawData.X, RawData.Y, RawData.Z);
+                }
+            }
+
+            public float GetAccelerationMagnitude()
+            {
+                return (float)Math.Sqrt(FinalData.X * FinalData.X + FinalData.Y * FinalData.Y + FinalData.Z * FinalData.Z);
+            }
+
+            public bool DetectThrow(float threshold = 50.0f)
+            {
+                return GetAccelerationMagnitude() > threshold;
+            }
+        }
+
+
         private string serialDataString = "";
         private Timer myTimer = new Timer();
         private Timer GestureTimeout = new Timer();
-        private Timer ThrowCooldown = new Timer();
         private enum DataStream { LEAD, Ax, Ay, Az };
         private DataStream nextDataStream;
-        private int rawAx = 0, rawAy = 0, rawAz = 0;
+        private int rawAx, rawAy, rawAz;
 
         // Enhanced with accelerometer processor
         private AccelerometerProcessor accelerometerProcessor;
-        private bool throwDetected = false;
-        private int throwCount = 0;
-        private int pokemonCaught = 0;
 
         private ConcurrentQueue<Int32> dataQueue = new ConcurrentQueue<Int32>();
         private ConcurrentQueue<Int32> dataQueue_Ax = new ConcurrentQueue<Int32>();
@@ -203,9 +200,21 @@ namespace LiveGestureRecognition
         private Queue<String> finalizedGestures = new Queue<String>();
 
         private const int GESTURE_TIMEOUT_MS = 5000;
-        private const int THROW_COOLDOWN_MS = 1000; // Prevent multiple throws
         private State CurrentState = 0;
         private bool stateProcessed = false;
+
+        private List<int> Last100Ax = new List<int>();
+        private List<int> Last100Ay = new List<int>();
+        private List<int> Last100Az = new List<int>();
+
+        // Average calculation variables
+        // Calculate start index and count for the slice
+        int takeCount;
+        int startIndex;
+        // Slice using GetRange
+        private List<int> last100 = new List<int>();
+        // Calculate average
+        double avg;
 
 
         enum State
@@ -269,6 +278,7 @@ namespace LiveGestureRecognition
         {
             textBox_CurrentState.Text = $"{CurrentState}";
             textBox_gesturebuffercount.Text = string.Join(", ", finalizedGestures.ToList());
+            textBox_DataQSize.Text = dataQueue.Count.ToString();
 
             while (dataQueue.TryDequeue(out int value))
             {
@@ -371,7 +381,11 @@ namespace LiveGestureRecognition
                         if (dataQueue_Ax.TryDequeue(out int ax) &&
                             dataQueue_Ay.TryDequeue(out int ay) &&
                             dataQueue_Az.TryDequeue(out int az))
-                        {
+                        {   
+                            Last100Ax.Add(ax);
+                            Last100Ay.Add(ay);
+                            Last100Az.Add(az);
+
                             // Process through accelerometer processor for smoothing
                             var processedData = accelerometerProcessor.ProcessData(ax, ay, az);
 
@@ -384,12 +398,35 @@ namespace LiveGestureRecognition
                             gestureBuffer.Add(ax);
                             gestureBuffer.Add(ay);
                             gestureBuffer.Add(az);
+
+                            textBox_Orientation.Text = DetermineOrientation(ax, ay, az);
+
                             stateMachine();
 
                         }
 
                         nextDataStream = DataStream.LEAD;
                         break;
+                }
+
+                // Calculate and display averages over 100 data points
+                if (Last100Ax.Count >= 100)
+                {
+                    avg = Last100Ax.Average();
+                    textBox_AverageAx.Text = avg.ToString("F2");
+                    Last100Ax.Clear();
+                }
+                if (Last100Ay.Count >= 100)
+                {
+                    avg = Last100Ay.Average();
+                    textBox_AverageAy.Text = avg.ToString("F2");
+                    Last100Ay.Clear();
+                }
+                if (Last100Az.Count >= 100)
+                {
+                    avg = Last100Az.Average();
+                    textBox_AverageAz.Text = avg.ToString("F2");
+                    Last100Az.Clear();
                 }
             }
         }
@@ -505,8 +542,6 @@ namespace LiveGestureRecognition
 
             if (detectedGestures.Count > 0)
             {
-                textBox_LatestGesture.Text = detectedGestures.Last();
-
                 var latestDetected = detectedGestures.Last();
                 var lastFinalized = finalizedGestures.LastOrDefault();
 
@@ -515,7 +550,7 @@ namespace LiveGestureRecognition
             }
             else
             {
-                textBox_LatestGesture.Text = string.Empty;
+                //
             }
         }
 
@@ -536,6 +571,25 @@ namespace LiveGestureRecognition
             finalizedGestures.Clear();
         }
 
+        private string DetermineOrientation(int x, int y, int z)
+        {
+            if (x > 150 && y < 130 && z < 130)
+                return "POS_X is facing up";
+            else if (x < 130 && y > 150 && z < 130)
+                return "POS_Y is facing up";
+            else if (x < 130 && y < 130 && z > 150)
+                return "POS_Z is facing up";
+            else if (x < 110 && y > 120 && z > 120)
+                return "NEG_X is facing up";
+            else if (x > 120 && y < 110 && z > 120)
+                return "NEG_Y is facing up";
+            else if (x > 120 && y > 120 && z < 110)
+                return "NEG_Z is facing up";
+            else
+                return "UNKNOWN";
+        }
+
+
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
         {
             try
@@ -555,4 +609,6 @@ namespace LiveGestureRecognition
             }
         }
     }
+
+    
 }

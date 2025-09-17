@@ -1,0 +1,13 @@
+C:\Users\kylea\Repos\MECH_421_Labs\FuelCell\FuelCell.Core\bin\Debug\net8.0\FuelCell.Core.deps.json
+C:\Users\kylea\Repos\MECH_421_Labs\FuelCell\FuelCell.Core\bin\Debug\net8.0\FuelCell.Core.dll
+C:\Users\kylea\Repos\MECH_421_Labs\FuelCell\FuelCell.Core\bin\Debug\net8.0\FuelCell.Core.pdb
+C:\Users\kylea\Repos\MECH_421_Labs\FuelCell\FuelCell.Core\obj\Debug\net8.0\FuelCell.Core.csproj.AssemblyReference.cache
+C:\Users\kylea\Repos\MECH_421_Labs\FuelCell\FuelCell.Core\obj\Debug\net8.0\FuelCell.Core.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\kylea\Repos\MECH_421_Labs\FuelCell\FuelCell.Core\obj\Debug\net8.0\FuelCell.Core.AssemblyInfoInputs.cache
+C:\Users\kylea\Repos\MECH_421_Labs\FuelCell\FuelCell.Core\obj\Debug\net8.0\FuelCell.Core.AssemblyInfo.cs
+C:\Users\kylea\Repos\MECH_421_Labs\FuelCell\FuelCell.Core\obj\Debug\net8.0\FuelCell.Core.csproj.CoreCompileInputs.cache
+C:\Users\kylea\Repos\MECH_421_Labs\FuelCell\FuelCell.Core\obj\Debug\net8.0\FuelCell.Core.sourcelink.json
+C:\Users\kylea\Repos\MECH_421_Labs\FuelCell\FuelCell.Core\obj\Debug\net8.0\FuelCell.Core.dll
+C:\Users\kylea\Repos\MECH_421_Labs\FuelCell\FuelCell.Core\obj\Debug\net8.0\refint\FuelCell.Core.dll
+C:\Users\kylea\Repos\MECH_421_Labs\FuelCell\FuelCell.Core\obj\Debug\net8.0\FuelCell.Core.pdb
+C:\Users\kylea\Repos\MECH_421_Labs\FuelCell\FuelCell.Core\obj\Debug\net8.0\ref\FuelCell.Core.dll
