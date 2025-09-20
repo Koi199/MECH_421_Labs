@@ -109,7 +109,7 @@ namespace FuelCell
                     effect.Projection = projection;
 
                     effect.EnableDefaultLighting();
-                    effect.PreferPerPixelLighting = true;
+                    effect.PreferPerPixelLighting = false;
                 }
                 mesh.Draw();
             }

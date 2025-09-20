@@ -506,6 +506,11 @@ namespace LiveGestureRecognition
             }
         }
 
+        // Class-level fields
+        private string lastFinalizedGesture = null;
+        private DateTime lastGestureTime = DateTime.MinValue;
+        private readonly TimeSpan gestureCooldown = TimeSpan.FromMilliseconds(500); // adjust as needed
+
         private void MapGesture(List<int> list)
         {
             if (list.Count < 3)
@@ -515,42 +520,31 @@ namespace LiveGestureRecognition
                 return;
             }
 
+            string gesture = null;
+
             if (list[0] > 230 && list[1] < 180 && list[2] < 180)
-            {
-                detectedGestures.Enqueue(Gesture.POS_X.ToString());
-            }
+                gesture = Gesture.POS_X.ToString();
             else if (list[0] < 180 && list[1] > 230 && list[2] < 180)
-            {
-                detectedGestures.Enqueue(Gesture.POS_Y.ToString());
-            }
-            else if (list[0] < 180 && list[1] < 180 && list[2] > 230)
-            {
-                detectedGestures.Enqueue(Gesture.POS_Z.ToString());
-            }
-            else if (list[0] < 20 && list[1] > 120 && list[2] > 120)
-            {
-                detectedGestures.Enqueue(Gesture.NEG_X.ToString());
-            }
+                gesture = Gesture.POS_Y.ToString();
+            else if (list[0] < 180 && list[1] < 180 && list[2] > 250)
+                gesture = Gesture.POS_Z.ToString();
+            else if (list[0] < 65 && list[1] > 120 && list[2] > 120)
+                gesture = Gesture.NEG_X.ToString();
             else if (list[0] > 120 && list[1] < 20 && list[2] > 120)
-            {
-                detectedGestures.Enqueue(Gesture.NEG_Y.ToString());
-            }
-            else if (list[0] > 120 && list[1] > 120 && list[2] < 20)
-            {
-                detectedGestures.Enqueue(Gesture.NEG_Z.ToString());
-            }
+                gesture = Gesture.NEG_Y.ToString();
+            else if (list[0] > 100 && list[1] > 88 && list[2] < 20)
+                gesture = Gesture.NEG_Z.ToString();
 
-            if (detectedGestures.Count > 0)
+            if (gesture != null)
             {
-                var latestDetected = detectedGestures.Last();
-                var lastFinalized = finalizedGestures.LastOrDefault();
-
-                if (latestDetected != lastFinalized)
-                    finalizedGestures.Enqueue(latestDetected);
-            }
-            else
-            {
-                //
+                // Only accept if cooldown has passed OR it's a different gesture
+                if (gesture != lastFinalizedGesture ||
+                    DateTime.Now - lastGestureTime > gestureCooldown)
+                {
+                    finalizedGestures.Enqueue(gesture);
+                    lastFinalizedGesture = gesture;
+                    lastGestureTime = DateTime.Now;
+                }
             }
         }
 
@@ -558,12 +552,12 @@ namespace LiveGestureRecognition
         {
             var gestures = finalizedGestures.ToList();
 
-            if (gestures.SequenceEqual(new[] { "POS_X", "POS_Y" }))
-                textBox_AssessedGesture.Text = "right hook";
+            if (gestures.SequenceEqual(new[] { "POS_Z", "POS_X" }))
+                textBox_AssessedGesture.Text = "high punch";
             else if (gestures.SequenceEqual(new[] { "POS_X" }))
                 textBox_AssessedGesture.Text = "simple punch";
-            else if (gestures.SequenceEqual(new[] { "POS_X", "POS_Z", "POS_Y" }))
-                textBox_AssessedGesture.Text = "right uppercut";
+            else if (gestures.SequenceEqual(new[] { "POS_X", "POS_Y", "POS_Z" }))
+                textBox_AssessedGesture.Text = "right hook";
             else
                 textBox_AssessedGesture.Text = "unknown move";
 
@@ -571,16 +565,22 @@ namespace LiveGestureRecognition
             finalizedGestures.Clear();
         }
 
+        private void button_reset_Click(object sender, EventArgs e)
+        {
+            CurrentState = State.START;
+            finalizedGestures.Clear();
+        }
+
         private string DetermineOrientation(int x, int y, int z)
         {
-            if (x > 150 && y < 130 && z < 130)
-                return "POS_X is facing up";
-            else if (x < 130 && y > 150 && z < 130)
-                return "POS_Y is facing up";
-            else if (x < 130 && y < 130 && z > 150)
-                return "POS_Z is facing up";
-            else if (x < 110 && y > 120 && z > 120)
-                return "NEG_X is facing up";
+            if (x > 120 && y < 125 && z < 150)
+                return "Turn Right";
+            else if (x > 120 && y > 130 && z < 150)
+                return "Turn Left";
+            else if (x < 125 && y > 120 && z < 150)
+                return "Go backwards";
+            else if (x > 130 && y > 120 && z < 150)
+                return "Go forward";
             else if (x > 120 && y < 110 && z > 120)
                 return "NEG_Y is facing up";
             else if (x > 120 && y > 120 && z < 110)

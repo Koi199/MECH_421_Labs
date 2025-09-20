@@ -108,7 +108,7 @@ namespace FuelCell
     /// <summary>
     /// The current implementation for the InputState based on the IInputState interface
     /// </summary>
-    public class InputState : IInputState
+    public class InputState : IInputState, IDisposable
     {
         private readonly Game _game;
 
@@ -135,6 +135,14 @@ namespace FuelCell
 
         // If we are on mobile, what gestures have been detected.
         public readonly List<GestureSample> Gestures = new List<GestureSample>();
+
+        // Accelerometer input integration
+        private AccelerometerInput _accelerometerInput;
+
+        // Accelerometer configuration properties
+        public bool UseAccelerometer { get; set; } = true;
+        public string AccelerometerPort { get; set; } = "COM7";
+        public float AccelerometerDeadZone { get; set; } = 0.1f;
 
         /// <summary>
         /// Constructs a new input state.
@@ -167,10 +175,71 @@ namespace FuelCell
 
             // Once the InputState class has been initialized, then register the current instance with the Game Services registry.
             _game.Services.AddService(typeof(IInputState), this);
+
+            // Initialize accelerometer input
+            InitializeAccelerometer();
         }
 
         /// <summary>
-        /// Reads the latest state of the keyboard,  gamepads and touch.
+        /// Initialize the accelerometer input system
+        /// </summary>
+        private void InitializeAccelerometer()
+        {
+            if (!UseAccelerometer)
+            {
+                System.Diagnostics.Debug.WriteLine("Accelerometer use is disabled.");
+                return;
+            }
+
+            try
+            {
+                _accelerometerInput = new AccelerometerInput();
+                _accelerometerInput.PortName = AccelerometerPort;
+                
+                if (_accelerometerInput.Initialize())
+                {
+                    System.Diagnostics.Debug.WriteLine("Accelerometer initialized successfully on " + AccelerometerPort);
+                }
+                else
+                {
+                    System.Diagnostics.Debug.WriteLine("Accelerometer initialization failed");
+                    _accelerometerInput?.Dispose();
+                    _accelerometerInput = null;
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Accelerometer error: {ex.Message}");
+                _accelerometerInput?.Dispose();
+                _accelerometerInput = null;
+            }
+        }
+
+        /// <summary>
+        /// Get accelerometer connection status
+        /// </summary>
+        public bool IsAccelerometerConnected => _accelerometerInput?.IsConnected == true;
+
+        /// <summary>
+        /// Manually reconnect accelerometer (useful for debugging)
+        /// </summary>
+        public void ReconnectAccelerometer()
+        {
+            _accelerometerInput?.Dispose();
+            _accelerometerInput = null;
+            InitializeAccelerometer();
+        }
+
+        /// <summary>
+        /// Calibrate the accelerometer to current position
+        /// </summary>
+        public void CalibrateAccelerometer()
+        {
+            _accelerometerInput?.Calibrate();
+        }
+
+        /// <summary>
+        /// Reads the latest state of the keyboard, gamepads, touch, and accelerometer.
         /// </summary>
         public void Update()
         {
@@ -200,6 +269,8 @@ namespace FuelCell
             {
                 Gestures.Add(TouchPanel.ReadGesture());
             }
+
+            // Note: Accelerometer updates happen in background threads automatically
         }
 
         /// <summary>
@@ -572,7 +643,38 @@ namespace FuelCell
                     IsNewButtonPress(Buttons.Start, controllingPlayer, out _);
         }
 
+        /// <summary>
+        /// Get input from the player for movement left and right in the game.
+        /// Now integrates accelerometer input with fallback to traditional controls.
+        /// </summary>
         public float GetPlayerTurn(PlayerIndex? controllingPlayer)
+        {
+            float turnAmount = 0;
+
+            // Check accelerometer first if connected and enabled
+            if (UseAccelerometer && _accelerometerInput?.IsConnected == true)
+            {
+                turnAmount = _accelerometerInput.GetTurnAmount();
+
+                // If accelerometer turn is below dead zone, fall back to traditional input
+                if (Math.Abs(turnAmount) < AccelerometerDeadZone)
+                {
+                    turnAmount = GetTraditionalTurnInput(controllingPlayer);
+                }
+            }
+            else
+            {
+                // Use traditional input when accelerometer not available
+                turnAmount = GetTraditionalTurnInput(controllingPlayer);
+            }
+
+            return turnAmount;
+        }
+
+        /// <summary>
+        /// Get traditional turn input from keyboard and gamepad
+        /// </summary>
+        private float GetTraditionalTurnInput(PlayerIndex? controllingPlayer)
         {
             float turnAmount = 0;
             Vector2 thumbstickValue = GetThumbStickLeft(controllingPlayer);
@@ -589,10 +691,42 @@ namespace FuelCell
             {
                 turnAmount = -thumbstickValue.X;
             }
+
             return turnAmount;
         }
 
+        /// <summary>
+        /// Get input from the player for movement forward and backwards in the game.
+        /// Now integrates accelerometer input with fallback to traditional controls.
+        /// </summary>
         public Vector3 GetPlayerMove(PlayerIndex? controllingPlayer)
+        {
+            Vector3 movement = Vector3.Zero;
+
+            // Check accelerometer first if connected and enabled
+            if (UseAccelerometer && _accelerometerInput?.IsConnected == true)
+            {
+                movement = _accelerometerInput.GetMovementVector();
+
+                // If accelerometer movement is below dead zone, fall back to traditional input
+                if (Math.Abs(movement.Z) < AccelerometerDeadZone)
+                {
+                    movement = GetTraditionalMovementInput(controllingPlayer);
+                }
+            }
+            else
+            {
+                // Use traditional input when accelerometer not available
+                movement = GetTraditionalMovementInput(controllingPlayer);
+            }
+
+            return movement;
+        }
+
+        /// <summary>
+        /// Get traditional movement input from keyboard and gamepad
+        /// </summary>
+        private Vector3 GetTraditionalMovementInput(PlayerIndex? controllingPlayer)
         {
             Vector3 movement = Vector3.Zero;
             Vector2 thumbstickValue = GetThumbStickLeft(controllingPlayer);
@@ -609,7 +743,16 @@ namespace FuelCell
             {
                 movement.Z = thumbstickValue.Y;
             }
+
             return movement;
+        }
+
+        /// <summary>
+        /// Dispose of resources including accelerometer
+        /// </summary>
+        public void Dispose()
+        {
+            _accelerometerInput?.Dispose();
         }
     }
 }

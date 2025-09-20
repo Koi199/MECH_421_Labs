@@ -83,7 +83,7 @@ namespace FuelCell
             spriteBatch = new SpriteBatch(GraphicsDevice);
             statsFont = Content.Load<SpriteFont>("Fonts/StatsFont");
 
-            ground.Model = Content.Load<Model>("Models/ground");
+            ground.Model = Content.Load<Model>("Models/ground_grass");
             boundingSphere.Model = Content.Load<Model>("Models/sphere1uR");
 
             // Audio
@@ -107,7 +107,7 @@ namespace FuelCell
                 switch (randomBarrier)
                 {
                     case 0:
-                        barrierName = "Models/cube10uR";
+                        barrierName = "Models/tree_palm";
                         break;
                     case 1:
                         barrierName = "Models/cylinder10uR";
@@ -284,19 +284,28 @@ namespace FuelCell
 
         private void DrawTerrain(Model model)
         {
-            foreach (ModelMesh mesh in model.Meshes)
-            {
-                foreach (BasicEffect effect in mesh.Effects)
-                {
-                    effect.EnableDefaultLighting();
-                    effect.PreferPerPixelLighting = true;
-                    effect.World = Matrix.Identity;
+            float tileSize = 10f; // match your ground model size
+            int tilesPerSide = (int)((2 * GameConstants.MaxRange / tileSize) + 2);
 
-                    // Use the matrices provided by the game camera
-                    effect.View = gameCamera.ViewMatrix;
-                    effect.Projection = gameCamera.ProjectionMatrix;
+            for (int x = -tilesPerSide / 2; x < tilesPerSide / 2; x++)
+            {
+                for (int z = -tilesPerSide / 2; z < tilesPerSide / 2; z++)
+                {
+                    Matrix worldMatrix = Matrix.CreateTranslation(x * tileSize, 0, z * tileSize);
+
+                    foreach (ModelMesh mesh in model.Meshes)
+                    {
+                        foreach (BasicEffect effect in mesh.Effects)
+                        {
+                            effect.World = worldMatrix;
+                            effect.View = gameCamera.ViewMatrix;
+                            effect.Projection = gameCamera.ProjectionMatrix;
+                            effect.EnableDefaultLighting();
+                            effect.PreferPerPixelLighting = false;
+                        }
+                        mesh.Draw();
+                    }
                 }
-                mesh.Draw();
             }
         }
 
@@ -499,7 +508,7 @@ namespace FuelCell
                 switch (randomBarrier)
                 {
                     case 0:
-                        barrierName = "Models/cube10uR";
+                        barrierName = "Models/tree_palm";
                         break;
                     case 1:
                         barrierName = "Models/cylinder10uR";

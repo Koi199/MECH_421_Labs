@@ -17,7 +17,7 @@ namespace FuelCell
 
         // Game board setup
         public const int MaxRangeTerrain = 98;
-        public const int NumBarriers = 40;
+        public const int NumBarriers = 25;
         public const int NumFuelCells = 12;
         public const int MinDistance = 10;
         public const int MaxDistance = 90;
@@ -25,7 +25,7 @@ namespace FuelCell
         //bounding sphere scaling factors
         public const float FuelCarrierBoundingSphereFactor = .7f;
         public const float FuelCellBoundingSphereFactor = .5f;
-        public const float BarrierBoundingSphereFactor = .7f;
+        public const float BarrierBoundingSphereFactor = .5f;
 
         //Gameplay tracking variables
         public static readonly TimeSpan RoundTime = TimeSpan.FromSeconds(30.25);

@@ -19,11 +19,15 @@
     <File>C:/Users/kylea/Repos/MECH_421_Labs/FuelCell/FuelCell.Core/Content/Models/fuelcarrier.fbx</File>
     <File>C:/Users/kylea/Repos/MECH_421_Labs/FuelCell/FuelCell.Core/Content/Models/fuelcell.png</File>
     <File>C:/Users/kylea/Repos/MECH_421_Labs/FuelCell/FuelCell.Core/Content/Models/fuelcellmodel.x</File>
+    <File>C:/Users/kylea/Repos/MECH_421_Labs/FuelCell/FuelCell.Core/Content/Models/ground_grass.x</File>
     <File>C:/Users/kylea/Repos/MECH_421_Labs/FuelCell/FuelCell.Core/Content/Models/ground.png</File>
     <File>C:/Users/kylea/Repos/MECH_421_Labs/FuelCell/FuelCell.Core/Content/Models/ground.x</File>
+    <File>C:/Users/kylea/Repos/MECH_421_Labs/FuelCell/FuelCell.Core/Content/Models/platform_beach.fbx</File>
     <File>C:/Users/kylea/Repos/MECH_421_Labs/FuelCell/FuelCell.Core/Content/Models/pyramid10uR.x</File>
+    <File>C:/Users/kylea/Repos/MECH_421_Labs/FuelCell/FuelCell.Core/Content/Models/sandstone_top.png</File>
     <File>C:/Users/kylea/Repos/MECH_421_Labs/FuelCell/FuelCell.Core/Content/Models/ShipDiffuse.tga</File>
     <File>C:/Users/kylea/Repos/MECH_421_Labs/FuelCell/FuelCell.Core/Content/Models/sphere1uR.x</File>
+    <File>C:/Users/kylea/Repos/MECH_421_Labs/FuelCell/FuelCell.Core/Content/Models/tree_palm.fbx</File>
     <File>C:/Users/kylea/Repos/MECH_421_Labs/FuelCell/FuelCell.Core/Content/Models/White.png</File>
     <File>C:/Users/kylea/Repos/MECH_421_Labs/FuelCell/FuelCell.Core/Content/suv.fbx</File>
   </SourceFiles>
@@ -34,6 +38,10 @@
     <File xsi:nil="true" />
     <File>Models/Lego-6707</File>
     <File>Models/Low Poly Buggy</File>
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
     <File xsi:nil="true" />
     <File xsi:nil="true" />
     <File xsi:nil="true" />

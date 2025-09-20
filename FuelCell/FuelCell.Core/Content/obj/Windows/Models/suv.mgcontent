@@ -3,7 +3,7 @@
   <SourceFile>C:/Users/kylea/Repos/MECH_421_Labs/FuelCell/FuelCell.Core/Content/suv.fbx</SourceFile>
   <SourceTime>2025-09-17T01:22:38.1262577-07:00</SourceTime>
   <DestFile>C:/Users/kylea/Repos/MECH_421_Labs/FuelCell/FuelCell.Core/Content/bin/Windows/Models/suv.xnb</DestFile>
-  <DestTime>2025-09-17T01:40:53.5727654-07:00</DestTime>
+  <DestTime>2025-09-17T15:54:50.9018165-07:00</DestTime>
   <Importer>FbxImporter</Importer>
   <ImporterTime>2025-06-02T03:31:02-07:00</ImporterTime>
   <Processor>ModelProcessor</Processor>

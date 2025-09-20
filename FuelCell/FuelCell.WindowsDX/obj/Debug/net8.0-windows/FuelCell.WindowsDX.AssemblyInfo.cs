@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("FuelCell.WindowsDX")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+1baa60d7fa36815fdccc719f1ee7b6d738c43248")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+3b5ee5eca880540d87ad3555bbeffa9456372ac3")]
 [assembly: System.Reflection.AssemblyProductAttribute("FuelCell.WindowsDX")]
 [assembly: System.Reflection.AssemblyTitleAttribute("FuelCell.WindowsDX")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
