@@ -51,6 +51,8 @@ namespace FuelCell
             Vector3 speed = Vector3.Transform(inputState.GetPlayerMove(PlayerIndex.One), orientationMatrix);
             if (speed != Vector3.Zero)
             {
+                SoundEffectInstance engineRumble = this.engineRumble.CreateInstance();
+                engineRumble.Volume = 0.2f;
                 engineRumble.Play();
             }
             speed *= GameConstants.Velocity;

@@ -10,7 +10,7 @@ namespace FuelCell
         public const float ViewAngle = 45.0f;
 
         //ship constants
-        public const float Velocity = 0.75f;
+        public const float Velocity = 1.0f;
         public const float TurnSpeed = 0.025f;
         public const int MaxRange = 98;
         public const float HeightOffset = 2;
@@ -32,11 +32,11 @@ namespace FuelCell
 
         // Display Text
         public const string StrTimeRemaining = "Time Remaining: ";
-        public const string StrCellsFound = "Fuel Cells Retrieved: ";
+        public const string StrCellsFound = "Flowers Retrieved: ";
         public const string StrGameWon = "Game Won !";
         public const string StrGameLost = "Game Lost !";
         public const string StrPlayAgain = "Press Enter/Start to play again or Esc/Back to quit";
-        public const string StrInstructions1 = "Retrieve all Fuel Cells before time runs out.";
-        public const string StrInstructions2 = "Control ship using keyboard (A, D, W, S) or the left thumbstick.";
+        public const string StrInstructions1 = "Retrieve all Flowers before time runs out.";
+        public const string StrInstructions2 = "Control buggy using keyboard (A, D, W, S) or the accelerometer.";
     }
 }

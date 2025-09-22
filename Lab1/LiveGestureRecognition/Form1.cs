@@ -413,19 +413,23 @@ namespace LiveGestureRecognition
                 if (Last100Ax.Count >= 100)
                 {
                     avg = Last100Ax.Average();
-                    textBox_AverageAx.Text = avg.ToString("F2");
+                    //textBox_AverageAx.Text = avg.ToString("F2");
+                    textBox_AverageAx.Text = Last100Ax.Max().ToString();
                     Last100Ax.Clear();
                 }
                 if (Last100Ay.Count >= 100)
                 {
                     avg = Last100Ay.Average();
-                    textBox_AverageAy.Text = avg.ToString("F2");
+                    //textBox_AverageAy.Text = avg.ToString("F2");
+                    textBox_AverageAy.Text = Last100Ay.Max().ToString();
                     Last100Ay.Clear();
                 }
                 if (Last100Az.Count >= 100)
                 {
                     avg = Last100Az.Average();
-                    textBox_AverageAz.Text = avg.ToString("F2");
+                    //textBox_AverageAz.Text = avg.ToString("F2");
+                    textBox_AverageAz.Text = Last100Az.Max().ToString();
+
                     Last100Az.Clear();
                 }
             }
@@ -522,17 +526,17 @@ namespace LiveGestureRecognition
 
             string gesture = null;
 
-            if (list[0] > 230 && list[1] < 180 && list[2] < 180)
+            if (list[0] > 245 && list[1] < 150 && list[2] < 170)
                 gesture = Gesture.POS_X.ToString();
-            else if (list[0] < 180 && list[1] > 230 && list[2] < 180)
+            else if (list[0] < 150 && list[1] > 210 && list[2] < 170)
                 gesture = Gesture.POS_Y.ToString();
-            else if (list[0] < 180 && list[1] < 180 && list[2] > 250)
+            else if (list[0] < 170 && list[1] < 150 && list[2] > 230)
                 gesture = Gesture.POS_Z.ToString();
-            else if (list[0] < 65 && list[1] > 120 && list[2] > 120)
+            else if (list[0] < 40 && list[1] > 120 && list[2] > 120)
                 gesture = Gesture.NEG_X.ToString();
-            else if (list[0] > 120 && list[1] < 20 && list[2] > 120)
+            else if (list[0] < 150 && list[1] < 40 && list[2] > 120)
                 gesture = Gesture.NEG_Y.ToString();
-            else if (list[0] > 100 && list[1] > 88 && list[2] < 20)
+            else if (list[0] < 150 && list[1] < 150 && list[2] < 20)
                 gesture = Gesture.NEG_Z.ToString();
 
             if (gesture != null)

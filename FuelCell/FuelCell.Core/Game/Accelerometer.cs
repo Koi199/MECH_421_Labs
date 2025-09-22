@@ -162,6 +162,12 @@ namespace FuelCell
             {
                 _serialPort = new SerialPort(PortName, BaudRate);
                 _serialPort.Open();
+                Thread.Sleep(100); // give board time to initialize
+
+                // Send start command (from your working code)
+                byte[] startCommand = System.Text.Encoding.Unicode.GetBytes("a");
+                _serialPort.Write(startCommand, 0, 1);
+
 
                 _cts = new CancellationTokenSource();
                 _isRunning = true;
@@ -230,6 +236,7 @@ namespace FuelCell
 
             _currentMovement = new Vector3(0f, 0f, forward);
             _currentTurn = turn;
+            System.Diagnostics.Debug.WriteLine($"Movement: {_currentMovement}, Turn: {_currentTurn}");
         }
 
         // --- Public API (unchanged names) ---
@@ -247,6 +254,14 @@ namespace FuelCell
             _isRunning = false;
             _cts?.Cancel();
             try { _readerTask?.Wait(500); } catch { }
+
+            if (_serialPort?.IsOpen == true)
+            {
+                // Send stop command (from your working code)
+                byte[] stopCommand = System.Text.Encoding.Unicode.GetBytes("z");
+                _serialPort.Write(stopCommand, 0, 1);
+            }
+
             _serialPort?.Close();
             _serialPort?.Dispose();
             _cts?.Dispose();

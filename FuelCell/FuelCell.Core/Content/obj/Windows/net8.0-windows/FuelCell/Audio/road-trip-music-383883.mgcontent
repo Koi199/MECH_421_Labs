@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PipelineBuildEvent xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <SourceFile>C:/Users/kylea/Repos/MECH_421_Labs/FuelCell/FuelCell.Core/Content/Audio/road-trip-music-383883.mp3</SourceFile>
+  <SourceTime>2025-09-21T23:17:24.7055437-07:00</SourceTime>
+  <DestFile>C:/Users/kylea/Repos/MECH_421_Labs/FuelCell/FuelCell.Core/Content/bin/Windows/FuelCell/Audio/road-trip-music-383883.xnb</DestFile>
+  <DestTime>2025-09-21T23:22:15.6383532-07:00</DestTime>
+  <Importer>Mp3Importer</Importer>
+  <ImporterTime>2025-06-02T03:31:02-07:00</ImporterTime>
+  <Processor>SongProcessor</Processor>
+  <ProcessorTime>2025-06-02T03:31:02-07:00</ProcessorTime>
+  <Parameters>
+    <Key>Quality</Key>
+    <Value>Best</Value>
+  </Parameters>
+  <Dependencies />
+  <BuildAsset />
+  <BuildOutput>
+    <string>C:/Users/kylea/Repos/MECH_421_Labs/FuelCell/FuelCell.Core/Content/bin/Windows/FuelCell/Audio/road-trip-music-383883.wma</string>
+  </BuildOutput>
+</PipelineBuildEvent>

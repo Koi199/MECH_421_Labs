@@ -13,6 +13,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
 using System;
+using System.Collections.Generic;
 using MediaPlayer = Microsoft.Xna.Framework.Media.MediaPlayer;
 
 namespace FuelCell
@@ -20,7 +21,7 @@ namespace FuelCell
     /// <summary>
     /// The available states of the game
     /// </summary>
-    public enum GameState { Loading, Running, Won, Lost }
+    public enum GameState { Loading, Running, Won, Lost, NextLevel }
 
     /// <summary>
     /// This is the main type for your game
@@ -40,21 +41,33 @@ namespace FuelCell
         private FuelCarrier fuelCarrier;
         private FuelCell[] fuelCells;
         private Barrier[] barriers;
+        private Barrier[] boundaryBarriers;
 
         private GameObject boundingSphere;
 
         private int retrievedFuelCells = 0;
-        private TimeSpan startTime, roundTimer, roundTime;
+        private TimeSpan startTime, roundTimer;
         private float aspectRatio;
         private IInputState inputState;
         private Song backgroundMusic;
+
+        // Level system
+        private int currentLevel = 1;
+        private const int maxLevel = 3;
+        private TimeSpan levelCompletePause = TimeSpan.FromSeconds(2);
+        private TimeSpan nextLevelTimer;
+
+        // Cloud system
+        private Texture2D cloudTexture;
+        private Vector2[] cloudPositions;
+        private float[] cloudSpeeds;
+        private bool cloudsInitialized = false;
 
         public FuelCellGame()
         {
             graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
             random = new Random();
-            roundTime = GameConstants.RoundTime;
             graphics.PreferredBackBufferWidth = 853;
             graphics.PreferredBackBufferHeight = 480;
             inputState = new InputState(this);
@@ -72,12 +85,52 @@ namespace FuelCell
         }
 
         /// <summary>
+        /// Get number of fuel cells for current level
+        /// </summary>
+        private int GetNumFuelCells(int level)
+        {
+            return GameConstants.NumFuelCells + (level - 1) * 2; // Level 1: base, Level 2: +2, Level 3: +4
+        }
+
+        /// <summary>
+        /// Get number of barriers for current level
+        /// </summary>
+        private int GetNumBarriers(int level)
+        {
+            return GameConstants.NumBarriers + (level - 1) * 3; // More barriers each level
+        }
+
+        /// <summary>
+        /// Get time limit for current level
+        /// </summary>
+        private TimeSpan GetLevelTime(int level)
+        {
+            int baseSeconds = 60;
+            int timeReduction = (level - 1) * 10; // Less time each level
+            return TimeSpan.FromSeconds(Math.Max(baseSeconds - timeReduction, 30)); // Minimum 30 seconds
+        }
+
+        /// <summary>
         /// LoadContent will be called once per game and is the place to load
         /// all of your content.
         /// </summary>
         protected override void LoadContent()
         {
             this.Content.RootDirectory = "Content";
+
+            // Load cloud texture and initialize cloud positions and speeds
+            cloudTexture = Content.Load<Texture2D>("Models/Clouds V2-2");
+
+            // Initialize cloud arrays (but not positions yet)
+            cloudPositions = new Vector2[7];
+            cloudSpeeds = new float[5];
+
+            // Initialize cloud speeds (these don't change)
+            Random cloudRandom = new Random();
+            for (int i = 0; i < cloudSpeeds.Length; i++)
+            {
+                cloudSpeeds[i] = cloudRandom.Next(10, 30);
+            }
 
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
@@ -87,45 +140,14 @@ namespace FuelCell
             boundingSphere.Model = Content.Load<Model>("Models/sphere1uR");
 
             // Audio
-            backgroundMusic = Content.Load<Song>("Audio/background-music");
-
-            //Initialize fuel cells
-            fuelCells = new FuelCell[GameConstants.NumFuelCells];
-            for (int index = 0; index < fuelCells.Length; index++)
-            {
-                fuelCells[index] = new FuelCell();
-                fuelCells[index].LoadContent(Content, "Models/fuelcellmodel");
-            }
-
-            //Initialize barriers
-            barriers = new Barrier[GameConstants.NumBarriers];
-            int randomBarrier = random.Next(3);
-            string barrierName = null;
-
-            for (int index = 0; index < barriers.Length; index++)
-            {
-                switch (randomBarrier)
-                {
-                    case 0:
-                        barrierName = "Models/tree_palm";
-                        break;
-                    case 1:
-                        barrierName = "Models/cylinder10uR";
-                        break;
-                    case 2:
-                        barrierName = "Models/pyramid10uR";
-                        break;
-                }
-                barriers[index] = new Barrier();
-                barriers[index].LoadContent(Content, barrierName);
-                randomBarrier = random.Next(3);
-            }
-
-            PlaceFuelCellsAndBarriers();
+            backgroundMusic = Content.Load<Song>("Audio/road-trip-music-383883");
 
             //Initialize fuel carrier
             fuelCarrier = new FuelCarrier();
             fuelCarrier.LoadContent(Content, "Models/suv");
+
+            // Initialize with Level 1 parameters
+            InitializeGameField();
         }
 
         /// <summary>
@@ -153,12 +175,31 @@ namespace FuelCell
                 }
             }
 
-            // Main gameplay running screen
-            if ((currentGameState == GameState.Running))
+            // Next level transition state
+            if (currentGameState == GameState.NextLevel)
             {
+                nextLevelTimer -= gameTime.ElapsedGameTime;
+                if (nextLevelTimer <= TimeSpan.Zero)
+                {
+                    StartNextLevel(gameTime, aspectRatio);
+                }
+            }
+
+            // Main gameplay running screen
+            if (currentGameState == GameState.Running)
+            {
+                // Initialize clouds once when game starts running
+                if (!cloudsInitialized)
+                {
+                    InitializeClouds();
+                    cloudsInitialized = true;
+                }
+
                 fuelCarrier.Update(inputState, barriers);
                 float aspectRatio = graphics.GraphicsDevice.Viewport.AspectRatio;
                 gameCamera.Update(fuelCarrier.ForwardDirection, fuelCarrier.Position, aspectRatio);
+
+                // Count retrieved fuel cells
                 retrievedFuelCells = 0;
                 foreach (FuelCell fuelCell in fuelCells)
                 {
@@ -168,18 +209,30 @@ namespace FuelCell
                         retrievedFuelCells++;
                     }
                 }
-                if (retrievedFuelCells == GameConstants.NumFuelCells)
+
+                // Check level completion
+                if (retrievedFuelCells == GetNumFuelCells(currentLevel))
                 {
-                    currentGameState = GameState.Won;
+                    if (currentLevel >= maxLevel)
+                    {
+                        currentGameState = GameState.Won; // Beat all levels!
+                    }
+                    else
+                    {
+                        currentGameState = GameState.NextLevel;
+                        nextLevelTimer = levelCompletePause;
+                    }
                 }
+
+                // Check time limit
                 roundTimer -= gameTime.ElapsedGameTime;
-                if ((roundTimer < TimeSpan.Zero) && (retrievedFuelCells != GameConstants.NumFuelCells))
+                if (roundTimer < TimeSpan.Zero && retrievedFuelCells != GetNumFuelCells(currentLevel))
                 {
                     currentGameState = GameState.Lost;
                 }
             }
 
-            if ((currentGameState == GameState.Won) || (currentGameState == GameState.Lost))
+            if (currentGameState == GameState.Won || currentGameState == GameState.Lost)
             {
                 // Gameplay has stopped and if audio is still playing, stop it.
                 if (MediaPlayer.State == MediaState.Playing)
@@ -197,29 +250,88 @@ namespace FuelCell
             base.Update(gameTime);
         }
 
+        private void InitializeClouds()
+        {
+            if (cloudPositions != null && GraphicsDevice != null)
+            {
+                Random cloudRandom = new Random();
+                List<Vector2> placedClouds = new List<Vector2>();
+
+                for (int i = 0; i < cloudPositions.Length; i++)
+                {
+                    Vector2 newPosition;
+                    int attempts = 0;
+
+                    do
+                    {
+                        newPosition = new Vector2(
+                            cloudRandom.Next(0, GraphicsDevice.Viewport.Width - 100),
+                            cloudRandom.Next(0, GraphicsDevice.Viewport.Height / 3)
+                        );
+                        attempts++;
+                    }
+                    while (IsPositionTooClose(newPosition, placedClouds, 150f) && attempts < 20);
+
+                    cloudPositions[i] = newPosition;
+                    placedClouds.Add(newPosition);
+                }
+            }
+        }
+
+        private bool IsPositionTooClose(Vector2 newPos, List<Vector2> existingPositions, float minDistance)
+        {
+            foreach (Vector2 existing in existingPositions)
+            {
+                if (Vector2.Distance(newPos, existing) < minDistance)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        private void StartNextLevel(GameTime gameTime, float aspectRatio)
+        {
+            currentLevel++;
+            System.Diagnostics.Debug.WriteLine($"Starting Level {currentLevel}");
+
+            fuelCarrier.Reset();
+            gameCamera.Update(fuelCarrier.ForwardDirection, fuelCarrier.Position, aspectRatio);
+            InitializeGameField();
+
+            retrievedFuelCells = 0;
+            roundTimer = GetLevelTime(currentLevel);
+            currentGameState = GameState.Running;
+        }
+
         /// <summary>
         /// Draws the game from background to foreground.
         /// </summary>
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime)
         {
-            GraphicsDevice.Clear(Color.Black);
-
+            // Set different background colors based on game state
             switch (currentGameState)
             {
                 case GameState.Loading:
+                    GraphicsDevice.Clear(Color.SteelBlue);
                     DrawSplashScreen();
                     break;
                 case GameState.Running:
+                    GraphicsDevice.Clear(new Color(88, 179, 184));
                     DrawGameplayScreen();
                     break;
+                case GameState.NextLevel:
+                    GraphicsDevice.Clear(new Color(88, 179, 184));
+                    DrawLevelCompleteScreen();
+                    break;
                 case GameState.Won:
-                    DrawWinOrLossScreen(GameConstants.StrGameWon);
-                    break;
                 case GameState.Lost:
-                    DrawWinOrLossScreen(GameConstants.StrGameLost);
+                    GraphicsDevice.Clear(Color.Black);
+                    DrawWinOrLossScreen(currentGameState == GameState.Won ?
+                        "Congratulations! You completed all levels!" : GameConstants.StrGameLost);
                     break;
-            };
+            }
 
             base.Draw(gameTime);
         }
@@ -235,11 +347,6 @@ namespace FuelCell
                 if (!fuelCell.Retrieved)
                 {
                     fuelCell.Draw(gameCamera.ViewMatrix, gameCamera.ProjectionMatrix);
-
-                    // Draw the bounding sphere for the fuel cells
-                    // ChangeRasterizerState(FillMode.WireFrame);
-                    // fuelCell.DrawBoundingSphere(gameCamera.ViewMatrix, gameCamera.ProjectionMatrix, boundingSphere);
-                    // ChangeRasterizerState(FillMode.Solid);
                 }
             }
 
@@ -247,22 +354,53 @@ namespace FuelCell
             foreach (Barrier barrier in barriers)
             {
                 barrier.Draw(gameCamera.ViewMatrix, gameCamera.ProjectionMatrix);
-
-                // Draw the bounding sphere for the barriers
-                // ChangeRasterizerState(FillMode.WireFrame);
-                // barrier.DrawBoundingSphere(gameCamera.ViewMatrix, gameCamera.ProjectionMatrix, boundingSphere);
-                // ChangeRasterizerState(FillMode.Solid);
             }
 
             // Draw the player fuelcarrier on the map
-            fuelCarrier.Draw(gameCamera.ViewMatrix, gameCamera.ProjectionMatrix);
+            fuelCarrier.Draw(gameCamera.ViewMatrix, gameCamera.ProjectionMatrix); 
 
-            // Draw the bounding sphere for the fuel carrier
-            // ChangeRasterizerState(FillMode.WireFrame);
-            // fuelCarrier.DrawBoundingSphere(gameCamera.ViewMatrix, gameCamera.ProjectionMatrix, boundingSphere);
-            // ChangeRasterizerState(FillMode.Solid);
+            if (boundaryBarriers != null)
+            {
+                foreach (Barrier boundary in boundaryBarriers)
+                {
+                    boundary.Draw(gameCamera.ViewMatrix, gameCamera.ProjectionMatrix);
+                }
+            }
 
             DrawStats();
+        }
+
+        private void DrawLevelCompleteScreen()
+        {
+            float xOffsetText, yOffsetText;
+            Vector2 viewportSize = new Vector2(GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height);
+            Vector2 strCenter;
+
+            string levelCompleteText = $"Level {currentLevel - 1} Complete!";
+            string nextLevelText = $"Starting Level {currentLevel}...";
+
+            Vector2 strCompleteSize = statsFont.MeasureString(levelCompleteText);
+            Vector2 strNextSize = statsFont.MeasureString(nextLevelText);
+
+            // Level complete text
+            strCenter = new Vector2(strCompleteSize.X / 2, strCompleteSize.Y / 2);
+            yOffsetText = (viewportSize.Y / 2 - strCenter.Y) - statsFont.LineSpacing;
+            xOffsetText = (viewportSize.X / 2 - strCenter.X);
+            Vector2 strPosition = new Vector2(xOffsetText, yOffsetText);
+
+            spriteBatch.Begin();
+            spriteBatch.DrawString(statsFont, levelCompleteText, strPosition, Color.Green);
+
+            // Next level text
+            strCenter = new Vector2(strNextSize.X / 2, strNextSize.Y / 2);
+            yOffsetText = (viewportSize.Y / 2 - strCenter.Y) + statsFont.LineSpacing;
+            xOffsetText = (viewportSize.X / 2 - strCenter.X);
+            strPosition = new Vector2(xOffsetText, yOffsetText);
+
+            spriteBatch.DrawString(statsFont, nextLevelText, strPosition, Color.White);
+            spriteBatch.End();
+
+            ResetRenderStates();
         }
 
         /// <summary>
@@ -274,9 +412,9 @@ namespace FuelCell
         private RasterizerState ChangeRasterizerState(FillMode fillmode, CullMode cullMode = CullMode.None)
         {
             RasterizerState rasterizerState = new RasterizerState()
-            { 
+            {
                 FillMode = fillmode,
-                CullMode = cullMode 
+                CullMode = cullMode
             };
             graphics.GraphicsDevice.RasterizerState = rasterizerState;
             return rasterizerState;
@@ -314,8 +452,6 @@ namespace FuelCell
             float xOffsetText, yOffsetText;
             Vector2 viewportSize = new Vector2(GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height);
             Vector2 strCenter;
-
-            graphics.GraphicsDevice.Clear(Color.SteelBlue);
 
             xOffsetText = yOffsetText = 0;
             Vector2 strInstructionsSize = statsFont.MeasureString(GameConstants.StrInstructions1);
@@ -374,11 +510,10 @@ namespace FuelCell
         private void DrawStats()
         {
             float xOffsetText, yOffsetText;
-            string str1 = GameConstants.StrTimeRemaining;
-            string str2 = GameConstants.StrCellsFound + retrievedFuelCells.ToString() + " of " + GameConstants.NumFuelCells.ToString();
+            string str1 = GameConstants.StrTimeRemaining + (roundTimer.Seconds).ToString();
+            string str2 = GameConstants.StrCellsFound + retrievedFuelCells.ToString() + " of " + GetNumFuelCells(currentLevel).ToString();
+            string str3 = "Level: " + currentLevel.ToString() + "/" + maxLevel.ToString();
             Rectangle rectSafeArea;
-
-            str1 += (roundTimer.Seconds).ToString();
 
             //Calculate str1 position
             rectSafeArea = GraphicsDevice.Viewport.TitleSafeArea;
@@ -393,6 +528,8 @@ namespace FuelCell
             spriteBatch.DrawString(statsFont, str1, strPosition, Color.White);
             strPosition.Y += strSize.Y;
             spriteBatch.DrawString(statsFont, str2, strPosition, Color.White);
+            strPosition.Y += strSize.Y;
+            spriteBatch.DrawString(statsFont, str3, strPosition, Color.Yellow); // Level in yellow
             spriteBatch.End();
 
             ResetRenderStates();
@@ -456,33 +593,88 @@ namespace FuelCell
         {
             foreach (GameObject currentObj in fuelCells)
             {
-                if (((int)(MathHelper.Distance(xValue, currentObj.Position.X)) < 15) &&
+                if (currentObj?.Position != null &&
+                    ((int)(MathHelper.Distance(xValue, currentObj.Position.X)) < 15) &&
                     ((int)(MathHelper.Distance(zValue, currentObj.Position.Z)) < 15))
-                    {
-                        return true;
-                    }
+                {
+                    return true;
+                }
             }
 
             foreach (GameObject currentObj in barriers)
             {
-                if (((int)(MathHelper.Distance(xValue, currentObj.Position.X)) < 15) &&
+                if (currentObj?.Position != null &&
+                    ((int)(MathHelper.Distance(xValue, currentObj.Position.X)) < 15) &&
                     ((int)(MathHelper.Distance(zValue, currentObj.Position.Z)) < 15))
-                    {
-                        return true;
-                    }
+                {
+                    return true;
+                }
             }
             return false;
         }
 
+        private void CreateVisibleBoundaries()
+        {
+            int boundaryDistance = GameConstants.MaxRange - 5;
+            List<Barrier> boundaries = new List<Barrier>();
+            int spacing = 15;
+
+            // North and South boundaries
+            for (int x = -boundaryDistance; x <= boundaryDistance; x += spacing)
+            {
+                // North
+                Barrier northMarker = new Barrier();
+                northMarker.LoadContent(Content, "Models/stone_largeD");
+                northMarker.Position = new Vector3(x, 0, boundaryDistance);
+                boundaries.Add(northMarker);
+
+                // South
+                Barrier southMarker = new Barrier();
+                southMarker.LoadContent(Content, "Models/stone_largeD");
+                southMarker.Position = new Vector3(x, 0, -boundaryDistance);
+                boundaries.Add(southMarker);
+            }
+
+            // East and West boundaries
+            for (int z = -boundaryDistance + spacing; z < boundaryDistance; z += spacing)
+            {
+                // East
+                Barrier eastMarker = new Barrier();
+                eastMarker.LoadContent(Content, "Models/stone_largeD");
+                eastMarker.Position = new Vector3(boundaryDistance, 0, z);
+                boundaries.Add(eastMarker);
+
+                // West
+                Barrier westMarker = new Barrier();
+                westMarker.LoadContent(Content, "Models/stone_largeD");
+                westMarker.Position = new Vector3(-boundaryDistance, 0, z);
+                boundaries.Add(westMarker);
+            }
+
+            boundaryBarriers = boundaries.ToArray();
+
+            // Set bounding spheres
+            foreach (Barrier boundary in boundaryBarriers)
+            {
+                Vector3 tempCenter = boundary.BoundingSphere.Center;
+                tempCenter.X = boundary.Position.X;
+                tempCenter.Z = boundary.Position.Z;
+                boundary.BoundingSphere = new BoundingSphere(tempCenter, boundary.BoundingSphere.Radius);
+            }
+        }
+
         private void ResetGame(GameTime gameTime, float aspectRatio)
         {
+            currentLevel = 1; // Reset to level 1
+            cloudsInitialized = false; // Reset clouds
+
             fuelCarrier.Reset();
             gameCamera.Update(fuelCarrier.ForwardDirection, fuelCarrier.Position, aspectRatio);
             InitializeGameField();
 
             retrievedFuelCells = 0;
             startTime = gameTime.TotalGameTime;
-            roundTimer = roundTime;
+            roundTimer = GetLevelTime(currentLevel);
             currentGameState = GameState.Running;
 
             // We use a try catch around the Media player, else in debug mode it can cause an exception which we need to catch.
@@ -498,12 +690,22 @@ namespace FuelCell
 
         private void InitializeGameField()
         {
-            //Initialize barriers
-            barriers = new Barrier[GameConstants.NumBarriers];
+            // Initialize fuel cells based on current level
+            int numFuelCells = GetNumFuelCells(currentLevel);
+            fuelCells = new FuelCell[numFuelCells];
+            for (int index = 0; index < numFuelCells; index++)
+            {
+                fuelCells[index] = new FuelCell();
+                fuelCells[index].LoadContent(Content, "Models/flower_redB");
+            }
+
+            // Initialize barriers based on current level
+            int numBarriers = GetNumBarriers(currentLevel);
+            barriers = new Barrier[numBarriers];
             int randomBarrier = random.Next(3);
             string barrierName = null;
 
-            for (int index = 0; index < GameConstants.NumBarriers; index++)
+            for (int index = 0; index < numBarriers; index++)
             {
                 switch (randomBarrier)
                 {
@@ -511,16 +713,18 @@ namespace FuelCell
                         barrierName = "Models/tree_palm";
                         break;
                     case 1:
-                        barrierName = "Models/cylinder10uR";
+                        barrierName = "Models/rock_smallF";
                         break;
                     case 2:
-                        barrierName = "Models/pyramid10uR";
+                        barrierName = "Models/stone_largeD";
                         break;
                 }
                 barriers[index] = new Barrier();
                 barriers[index].LoadContent(Content, barrierName);
                 randomBarrier = random.Next(3);
             }
+
+            //CreateVisibleBoundaries();
             PlaceFuelCellsAndBarriers();
         }
     }
