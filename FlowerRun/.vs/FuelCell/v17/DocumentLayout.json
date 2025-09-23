@@ -1,0 +1,165 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Users\\kylea\\Repos\\MECH_421_Labs\\FuelCell\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{64C2A1E6-09A1-4F46-8765-8B780C70122D}|FuelCell.Core\\FuelCell.Core.csproj|c:\\users\\kylea\\repos\\mech_421_labs\\fuelcell\\fuelcell.core\\game\\fuelcarrier.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{64C2A1E6-09A1-4F46-8765-8B780C70122D}|FuelCell.Core\\FuelCell.Core.csproj|solutionrelative:fuelcell.core\\game\\fuelcarrier.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{64C2A1E6-09A1-4F46-8765-8B780C70122D}|FuelCell.Core\\FuelCell.Core.csproj|c:\\users\\kylea\\repos\\mech_421_labs\\fuelcell\\fuelcell.core\\fuelcellgame.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{64C2A1E6-09A1-4F46-8765-8B780C70122D}|FuelCell.Core\\FuelCell.Core.csproj|solutionrelative:fuelcell.core\\fuelcellgame.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{64C2A1E6-09A1-4F46-8765-8B780C70122D}|FuelCell.Core\\FuelCell.Core.csproj|c:\\users\\kylea\\repos\\mech_421_labs\\fuelcell\\fuelcell.core\\game\\inputstate.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{64C2A1E6-09A1-4F46-8765-8B780C70122D}|FuelCell.Core\\FuelCell.Core.csproj|solutionrelative:fuelcell.core\\game\\inputstate.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{64C2A1E6-09A1-4F46-8765-8B780C70122D}|FuelCell.Core\\FuelCell.Core.csproj|c:\\users\\kylea\\repos\\mech_421_labs\\fuelcell\\fuelcell.core\\game\\gameobject.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{64C2A1E6-09A1-4F46-8765-8B780C70122D}|FuelCell.Core\\FuelCell.Core.csproj|solutionrelative:fuelcell.core\\game\\gameobject.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{64C2A1E6-09A1-4F46-8765-8B780C70122D}|FuelCell.Core\\FuelCell.Core.csproj|c:\\users\\kylea\\repos\\mech_421_labs\\fuelcell\\fuelcell.core\\game\\gameconstants.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{64C2A1E6-09A1-4F46-8765-8B780C70122D}|FuelCell.Core\\FuelCell.Core.csproj|solutionrelative:fuelcell.core\\game\\gameconstants.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{64C2A1E6-09A1-4F46-8765-8B780C70122D}|FuelCell.Core\\FuelCell.Core.csproj|c:\\users\\kylea\\repos\\mech_421_labs\\fuelcell\\fuelcell.core\\game\\camera.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{64C2A1E6-09A1-4F46-8765-8B780C70122D}|FuelCell.Core\\FuelCell.Core.csproj|solutionrelative:fuelcell.core\\game\\camera.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{64C2A1E6-09A1-4F46-8765-8B780C70122D}|FuelCell.Core\\FuelCell.Core.csproj|c:\\users\\kylea\\repos\\mech_421_labs\\fuelcell\\fuelcell.core\\game\\barrier.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{64C2A1E6-09A1-4F46-8765-8B780C70122D}|FuelCell.Core\\FuelCell.Core.csproj|solutionrelative:fuelcell.core\\game\\barrier.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{64C2A1E6-09A1-4F46-8765-8B780C70122D}|FuelCell.Core\\FuelCell.Core.csproj|c:\\users\\kylea\\repos\\mech_421_labs\\fuelcell\\fuelcell.core\\game\\accelerometer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{64C2A1E6-09A1-4F46-8765-8B780C70122D}|FuelCell.Core\\FuelCell.Core.csproj|solutionrelative:fuelcell.core\\game\\accelerometer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{560A5BBF-0E89-41D2-8754-975119D3F95C}|FuelCell.WindowsDX\\FuelCell.WindowsDX.csproj|c:\\users\\kylea\\repos\\mech_421_labs\\fuelcell\\fuelcell.windowsdx\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{560A5BBF-0E89-41D2-8754-975119D3F95C}|FuelCell.WindowsDX\\FuelCell.WindowsDX.csproj|solutionrelative:fuelcell.windowsdx\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 1,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedHeight": 200,
+          "SelectedChildIndex": 1,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "GameObject.cs",
+              "DocumentMoniker": "C:\\Users\\kylea\\Repos\\MECH_421_Labs\\FuelCell\\FuelCell.Core\\Game\\GameObject.cs",
+              "RelativeDocumentMoniker": "FuelCell.Core\\Game\\GameObject.cs",
+              "ToolTip": "C:\\Users\\kylea\\Repos\\MECH_421_Labs\\FuelCell\\FuelCell.Core\\Game\\GameObject.cs",
+              "RelativeToolTip": "FuelCell.Core\\Game\\GameObject.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-22T06:11:15.659Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "FuelCarrier.cs",
+              "DocumentMoniker": "C:\\Users\\kylea\\Repos\\MECH_421_Labs\\FuelCell\\FuelCell.Core\\Game\\FuelCarrier.cs",
+              "RelativeDocumentMoniker": "FuelCell.Core\\Game\\FuelCarrier.cs",
+              "ToolTip": "C:\\Users\\kylea\\Repos\\MECH_421_Labs\\FuelCell\\FuelCell.Core\\Game\\FuelCarrier.cs",
+              "RelativeToolTip": "FuelCell.Core\\Game\\FuelCarrier.cs",
+              "ViewState": "AgIAABYAAAAAAAAAAAAwwBYAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-22T06:10:27.36Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "Camera.cs",
+              "DocumentMoniker": "C:\\Users\\kylea\\Repos\\MECH_421_Labs\\FuelCell\\FuelCell.Core\\Game\\Camera.cs",
+              "RelativeDocumentMoniker": "FuelCell.Core\\Game\\Camera.cs",
+              "ToolTip": "C:\\Users\\kylea\\Repos\\MECH_421_Labs\\FuelCell\\FuelCell.Core\\Game\\Camera.cs",
+              "RelativeToolTip": "FuelCell.Core\\Game\\Camera.cs",
+              "ViewState": "AgIAAC0AAAAAAAAAAAAAAAwAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-17T07:29:16.884Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "Accelerometer.cs",
+              "DocumentMoniker": "C:\\Users\\kylea\\Repos\\MECH_421_Labs\\FuelCell\\FuelCell.Core\\Game\\Accelerometer.cs",
+              "RelativeDocumentMoniker": "FuelCell.Core\\Game\\Accelerometer.cs",
+              "ToolTip": "C:\\Users\\kylea\\Repos\\MECH_421_Labs\\FuelCell\\FuelCell.Core\\Game\\Accelerometer.cs",
+              "RelativeToolTip": "FuelCell.Core\\Game\\Accelerometer.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAcBAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-19T23:36:16.19Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "InputState.cs",
+              "DocumentMoniker": "C:\\Users\\kylea\\Repos\\MECH_421_Labs\\FuelCell\\FuelCell.Core\\Game\\InputState.cs",
+              "RelativeDocumentMoniker": "FuelCell.Core\\Game\\InputState.cs",
+              "ToolTip": "C:\\Users\\kylea\\Repos\\MECH_421_Labs\\FuelCell\\FuelCell.Core\\Game\\InputState.cs",
+              "RelativeToolTip": "FuelCell.Core\\Game\\InputState.cs",
+              "ViewState": "AgIAAHUBAAAAAAAAAAD4v48AAAAnAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-19T20:48:18.415Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "Barrier.cs",
+              "DocumentMoniker": "C:\\Users\\kylea\\Repos\\MECH_421_Labs\\FuelCell\\FuelCell.Core\\Game\\Barrier.cs",
+              "RelativeDocumentMoniker": "FuelCell.Core\\Game\\Barrier.cs",
+              "ToolTip": "C:\\Users\\kylea\\Repos\\MECH_421_Labs\\FuelCell\\FuelCell.Core\\Game\\Barrier.cs",
+              "RelativeToolTip": "FuelCell.Core\\Game\\Barrier.cs",
+              "ViewState": "AgIAADUAAAAAAAAAAAAIwBMAAAAzAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-17T23:17:20.526Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "GameConstants.cs",
+              "DocumentMoniker": "C:\\Users\\kylea\\Repos\\MECH_421_Labs\\FuelCell\\FuelCell.Core\\Game\\GameConstants.cs",
+              "RelativeDocumentMoniker": "FuelCell.Core\\Game\\GameConstants.cs",
+              "ToolTip": "C:\\Users\\kylea\\Repos\\MECH_421_Labs\\FuelCell\\FuelCell.Core\\Game\\GameConstants.cs",
+              "RelativeToolTip": "FuelCell.Core\\Game\\GameConstants.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABQAAAArAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-17T22:46:28.99Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "FuelCellGame.cs",
+              "DocumentMoniker": "C:\\Users\\kylea\\Repos\\MECH_421_Labs\\FuelCell\\FuelCell.Core\\FuelCellGame.cs",
+              "RelativeDocumentMoniker": "FuelCell.Core\\FuelCellGame.cs",
+              "ToolTip": "C:\\Users\\kylea\\Repos\\MECH_421_Labs\\FuelCell\\FuelCell.Core\\FuelCellGame.cs",
+              "RelativeToolTip": "FuelCell.Core\\FuelCellGame.cs",
+              "ViewState": "AgIAAHMAAAAAAAAAAAAYwIYAAABMAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-17T06:49:12.648Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "Program.cs",
+              "DocumentMoniker": "C:\\Users\\kylea\\Repos\\MECH_421_Labs\\FuelCell\\FuelCell.WindowsDX\\Program.cs",
+              "RelativeDocumentMoniker": "FuelCell.WindowsDX\\Program.cs",
+              "ToolTip": "C:\\Users\\kylea\\Repos\\MECH_421_Labs\\FuelCell\\FuelCell.WindowsDX\\Program.cs",
+              "RelativeToolTip": "FuelCell.WindowsDX\\Program.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAUAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-17T06:20:56.303Z"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

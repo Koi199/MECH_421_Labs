@@ -1,4 +1,5 @@
 ﻿using System;
+using System.CodeDom.Compiler;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -186,6 +187,9 @@ namespace LiveGestureRecognition
         private enum DataStream { LEAD, Ax, Ay, Az };
         private DataStream nextDataStream;
         private int rawAx, rawAy, rawAz;
+        private const int x_offset = 127;
+        private const int y_offset = 127;
+        private const int z_offset = 127;
 
         // Enhanced with accelerometer processor
         private AccelerometerProcessor accelerometerProcessor;
@@ -199,7 +203,7 @@ namespace LiveGestureRecognition
         private Queue<String> detectedGestures = new Queue<String>();
         private Queue<String> finalizedGestures = new Queue<String>();
 
-        private const int GESTURE_TIMEOUT_MS = 5000;
+        private const int GESTURE_TIMEOUT_MS = 3000;
         private State CurrentState = 0;
         private bool stateProcessed = false;
 
@@ -276,7 +280,10 @@ namespace LiveGestureRecognition
 
         private void UpdateDataStream(object sender, EventArgs e)
         {
-            textBox_CurrentState.Text = $"{CurrentState}";
+            if (serialPort_MSP430.IsOpen)
+            {
+                textBox_CurrentState.Text = serialPort_MSP430.BytesToRead.ToString();
+            }
             textBox_gesturebuffercount.Text = string.Join(", ", finalizedGestures.ToList());
             textBox_DataQSize.Text = dataQueue.Count.ToString();
 
@@ -390,9 +397,9 @@ namespace LiveGestureRecognition
                             var processedData = accelerometerProcessor.ProcessData(ax, ay, az);
 
                             // Update display with both raw and processed data
-                            textBox_Ax.Text = $"Raw: {ax} | Smooth: {processedData.X:F1}";
-                            textBox_Ay.Text = $"Raw: {ay} | Smooth: {processedData.Y:F1}";
-                            textBox_Az.Text = $"Raw: {az} | Smooth: {processedData.Z:F1}";
+                            textBox_Ax.Text = $"Raw: {ax}";
+                            textBox_Ay.Text = $"Raw: {ay}";
+                            textBox_Az.Text = $"Raw: {az}";
 
                             // Use original gesture recognition with raw values
                             gestureBuffer.Add(ax);
@@ -412,26 +419,41 @@ namespace LiveGestureRecognition
                 // Calculate and display averages over 100 data points
                 if (Last100Ax.Count >= 100)
                 {
-                    avg = Last100Ax.Average();
-                    //textBox_AverageAx.Text = avg.ToString("F2");
-                    textBox_AverageAx.Text = Last100Ax.Max().ToString();
+                    double minx = (Last100Ax.Min() - x_offset)/25;
+                    double maxx = (Last100Ax.Max() - x_offset)/25;
+                    textBox_Minx100.Text = minx.ToString();
+                    textBox_Maxx100.Text = maxx.ToString();
                     Last100Ax.Clear();
                 }
                 if (Last100Ay.Count >= 100)
                 {
-                    avg = Last100Ay.Average();
-                    //textBox_AverageAy.Text = avg.ToString("F2");
-                    textBox_AverageAy.Text = Last100Ay.Max().ToString();
+                    double miny = (Last100Ay.Min() - y_offset)/25;
+                    double maxy = (Last100Ay.Max() - y_offset)/25;
+                    textBox_Miny100.Text = miny.ToString();
+                    textBox_Maxy100.Text = maxy.ToString();
                     Last100Ay.Clear();
                 }
                 if (Last100Az.Count >= 100)
                 {
-                    avg = Last100Az.Average();
-                    //textBox_AverageAz.Text = avg.ToString("F2");
-                    textBox_AverageAz.Text = Last100Az.Max().ToString();
+                    double minz = (Last100Az.Min() - z_offset)/25;
+                    double maxz = (Last100Az.Max() - z_offset)/25;
+                    textBox_Maxz100.Text = maxz.ToString();
+                    textBox_Minz100.Text = minz.ToString();
 
                     Last100Az.Clear();
                 }
+
+                if (Last100Ax.Count >= 50 && Last100Ay.Count >= 50 && Last100Az.Count >= 50)
+                {
+                    double avgx = (Last100Ax.Average() - x_offset)/25;
+                    double avgy = (Last100Ay.Average() - y_offset)/25;
+                    double avgz = (Last100Az.Average() - z_offset)/25;
+
+                    double magnitude = Math.Sqrt(Math.Pow(avgx, 2) + Math.Pow(avgy, 2) + Math.Pow(avgz, 2));
+                    textBox_TotalAcc.Text = magnitude.ToString();
+
+                }
+
             }
         }
 
@@ -447,6 +469,7 @@ namespace LiveGestureRecognition
                 case State.START:
                     if (!stateProcessed)
                     {
+                        
                         finalizedGestures.Clear();
                         detectedGestures.Clear();
                         stateProcessed = true;
@@ -467,6 +490,7 @@ namespace LiveGestureRecognition
                 case State.GESTUREDETECTED:
                     if (!stateProcessed)
                     {
+                        textBox_AssessedGesture.Text = "";
                         MapGesture(gestureBuffer);
                         gestureBuffer.Clear();
                         GestureTimeout.Start();
@@ -526,17 +550,17 @@ namespace LiveGestureRecognition
 
             string gesture = null;
 
-            if (list[0] > 245 && list[1] < 150 && list[2] < 170)
+            if (list[0] > 248 && list[1] < 150 && list[2] < 170)
                 gesture = Gesture.POS_X.ToString();
-            else if (list[0] < 150 && list[1] > 210 && list[2] < 170)
-                gesture = Gesture.POS_Y.ToString();
-            else if (list[0] < 170 && list[1] < 150 && list[2] > 230)
+            //else if (list[0] < 150 && list[1] > 210 && list[2] < 170)
+            //    gesture = Gesture.POS_Y.ToString();
+            else if (list[0] < 200 && list[1] < 200 && list[2] > 230)
                 gesture = Gesture.POS_Z.ToString();
-            else if (list[0] < 40 && list[1] > 120 && list[2] > 120)
+            else if (list[0] < 20 && list[1] > 120 && list[2] > 120)
                 gesture = Gesture.NEG_X.ToString();
-            else if (list[0] < 150 && list[1] < 40 && list[2] > 120)
-                gesture = Gesture.NEG_Y.ToString();
-            else if (list[0] < 150 && list[1] < 150 && list[2] < 20)
+            //else if (list[0] < 150 && list[1] < 40 && list[2] > 120)
+            //    gesture = Gesture.NEG_Y.ToString();
+            else if (list[0] < 140 && list[1] < 140 && list[2] < 10)
                 gesture = Gesture.NEG_Z.ToString();
 
             if (gesture != null)
@@ -556,12 +580,12 @@ namespace LiveGestureRecognition
         {
             var gestures = finalizedGestures.ToList();
 
-            if (gestures.SequenceEqual(new[] { "POS_Z", "POS_X" }))
-                textBox_AssessedGesture.Text = "high punch";
-            else if (gestures.SequenceEqual(new[] { "POS_X" }))
-                textBox_AssessedGesture.Text = "simple punch";
-            else if (gestures.SequenceEqual(new[] { "POS_X", "POS_Y", "POS_Z" }))
-                textBox_AssessedGesture.Text = "right hook";
+            if (gestures.SequenceEqual(new[] { "NEG_Z" }))
+                textBox_AssessedGesture.Text = "Free Fall";
+            else if (gestures.SequenceEqual(new[] { "NEG_Z" , "POS_X" }))
+                textBox_AssessedGesture.Text = "Grave Digger";
+            else if (gestures.SequenceEqual(new[] { "POS_Z", "NEG_X", "POS_X" }))
+                textBox_AssessedGesture.Text = "High-Five";
             else
                 textBox_AssessedGesture.Text = "unknown move";
 
@@ -572,21 +596,22 @@ namespace LiveGestureRecognition
         private void button_reset_Click(object sender, EventArgs e)
         {
             CurrentState = State.START;
+            textBox_AssessedGesture.Text = "";
             finalizedGestures.Clear();
         }
 
         private string DetermineOrientation(int x, int y, int z)
         {
-            if (x > 120 && y < 125 && z < 150)
-                return "Turn Right";
-            else if (x > 120 && y > 130 && z < 150)
-                return "Turn Left";
-            else if (x < 125 && y > 120 && z < 150)
-                return "Go backwards";
-            else if (x > 130 && y > 120 && z < 150)
-                return "Go forward";
-            else if (x > 120 && y < 110 && z > 120)
+            if (x > 150 && y < 130 && z < 130)
+                return "NEG_X is facing up";
+            else if (x < 130 && y > 150 && z < 130)
                 return "NEG_Y is facing up";
+            else if (x < 130 && y < 130 && z > 150)
+                return "POS_Z is facing up";
+            else if (x < 110 && y > 120 && z > 120)
+                return "POS_X is facing up";
+            else if (x > 120 && y < 110 && z > 120)
+                return "POS_Y is facing up";
             else if (x > 120 && y > 120 && z < 110)
                 return "NEG_Z is facing up";
             else
